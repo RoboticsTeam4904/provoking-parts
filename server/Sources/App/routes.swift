@@ -5,7 +5,7 @@ public func routes(_ router: Router) throws {
     try router.oAuth(
         from: Google.self,
         authenticate: "google",
-        callback: "http://127.0.0.1/callback/google",
+        callback: "http://localhost:8080/callback/google",
         scope: ["profile"]) { (req, token) in
 
         let url = URL(string:
@@ -22,7 +22,8 @@ public func routes(_ router: Router) throws {
         }
     }
 
-    let protected = router.grouped(ImperialMiddleware())
+    let api = router.grouped("api")
+    let protected = api.grouped(ImperialMiddleware())
 
     let partController = PartController()
     protected.get("parts", use: partController.index)

@@ -17,11 +17,17 @@ struct PartUpdate: Content {
 }
 
 extension Part {
-    var status: Children<Part, Status> {
-        return children(\.statusID)
+    var status: Parent<Part, Status> {
+        return parent(\.statusID)
     }
 
     var subparts: Children<Part, Part> {
         return children(\.parentPartID)
     }
 }
+
+extension Part: Content {}
+
+extension Part: Parameter {}
+
+extension Part: Migration {}
