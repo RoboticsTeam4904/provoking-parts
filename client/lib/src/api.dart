@@ -54,7 +54,7 @@ Map<String, Map<int, Map<String, dynamic>>> sortedSession = Map();
 Future<String> initOAuth() async {
   try {
     await createImplicitBrowserFlow(
-        ClientId(clientID, null), ["email", "name", "openid"]).then((flow) {
+        ClientId(clientID, null), ["profile"]).then((flow) {
       flow.clientViaUserConsent().then((client) => authClient = client);
     });
   } catch (e) {
