@@ -67,7 +67,7 @@ Future<String> initOAuth() async {
 }
 
 Future<String> initSession() async {
-  final String oAuth = await initOAuth(flow);
+  final String oAuth = await initOAuth();
   if (oAuth != null) return oAuth;
   final Response resp = await authClient.get("$endpoint/init");
   if ((resp.statusCode / 200).floor() == 1) {
