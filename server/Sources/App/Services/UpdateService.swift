@@ -50,7 +50,7 @@ final class UpdateService: Service {
         throws -> Future<T> {
         let userID = try req.session()["id"]!
 
-        return try GoogleProfile.find(userID, on: req).flatMap { user in
+        return GoogleProfile.find(userID, on: req).flatMap { user in
             let update = Update(
                 timestamp: Date(timeIntervalSinceNow: 0),
                 model: model,
