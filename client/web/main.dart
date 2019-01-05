@@ -4,7 +4,8 @@ import 'package:client/client.dart';
 DivElement googleSignIn = document.querySelector("#googleSignIn");
 DivElement partsList = document.querySelector("#partsList");
 
-void main() {
+void main() async {
+  await initOauthFlow();
   initAlertElem();
   initModalElems();
   googleSignIn.onClick.listen((_) async {

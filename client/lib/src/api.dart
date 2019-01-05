@@ -10,6 +10,7 @@ const clientID =
 enum Update { delete, put, patch }
 enum Item { parts, statuses }
 AuthClient authClient;
+BrowserOAuth2Flow flow;
 Map<String, List<Map<String, dynamic>>> session = {
   "partsList": [
     {
@@ -52,11 +53,11 @@ Map<String, List<Map<String, dynamic>>> session = {
 };
 Map<String, Map<int, Map<String, dynamic>>> sortedSession = Map();
 
-Future<BrowserOAuth2Flow> getFlow() =>
-   createImplicitBrowserFlow(
+Future<void> initOauthFlow() async =>
+   flow = await createImplicitBrowserFlow(
         ClientId(clientID, null), ["profile"]);
 
-Future<String> initOAuth(BrowserOAuth2Flow flow) async {
+Future<String> initOAuth() async {
   try {
     await flow.clientViaUserConsent().then((client) => authClient = client);
   } catch (e) {
@@ -66,7 +67,7 @@ Future<String> initOAuth(BrowserOAuth2Flow flow) async {
 }
 
 Future<String> initSession() async {
-  final String oAuth = await initOAuth(await getFlow());
+  final String oAuth = await initOAuth(flow);
   if (oAuth != null) return oAuth;
   final Response resp = await authClient.get("$endpoint/init");
   if ((resp.statusCode / 200).floor() == 1) {
