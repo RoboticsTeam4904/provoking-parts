@@ -4,7 +4,7 @@ import 'dart:html';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:http/http.dart';
 
-const endpoint = "http://parts.botprovoking.com:8080/api";
+const endpoint = "http://parts.botprovoking.org:8080/api";
 const clientID =
     "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
 enum Update { delete, put, patch }
