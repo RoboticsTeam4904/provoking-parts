@@ -51,12 +51,13 @@ Map<String, List<Map<String, dynamic>>> session = {
 };
 Map<String, Map<int, Map<String, dynamic>>> sortedSession = Map();
 
-Future<String> initOAuth() async {
+Future<BrowserOAuth2Flow> getFlow() async =>
+   createImplicitBrowserFlow(
+        ClientId(clientID, null), ["profile"]);
+
+Future<String> initOAuth(BrowserOAuth2Flow flow) async {
   try {
-    await createImplicitBrowserFlow(
-        ClientId(clientID, null), ["profile"]).then((flow) {
-      flow.clientViaUserConsent().then((client) => authClient = client);
-    });
+    await flow.clientViaUserConsent().then((client) => authClient = client);
   } catch (e) {
     return e.toString();
   }
@@ -64,7 +65,7 @@ Future<String> initOAuth() async {
 }
 
 Future<String> initSession() async {
-  final String oAuth = await initOAuth();
+  final String oAuth = await initOAuth(await getFlow());
   if (oAuth != null) return oAuth;
   final Response resp = await authClient.get("$endpoint/init");
   if ((resp.statusCode / 200).floor() == 1) {
