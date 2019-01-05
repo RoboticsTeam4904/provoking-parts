@@ -53,10 +53,10 @@ DivElement makeSinglePart(Map<String, dynamic> json) =>
       ]);
 
 DivElement partEditMenu([Map<String, dynamic> json]) {
-  json ??= Map()..putIfAbsent("status", () => Map());
-  Update editType = json != null ? Update.patch : Update.put;
-  DivElement menu = DivElement();
-  StatusDropdown status = StatusDropdown(json["status"]["id"]);
+  json.putIfAbsent("status", () => Map());
+  final editType = json != null ? Update.patch : Update.create;
+  final menu = DivElement();
+  final statusDropdown = StatusDropdown(json["status"]["id"]);
   InputElement name, count;
   return menu
     ..children.add(DivElement()
@@ -75,7 +75,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
             count = InputElement(type: "number")
               ..className = "count"
               ..value = json["count"].toString(),
-            status.dropdownElem..className = "status"
+            statusDropdown.dropdownElem..className = "status"
           ]),
         DivElement()
           ..className = "end"
@@ -98,7 +98,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                   inputErrs.add(
                       "The quantity of this part must be a natural number.");
                 if (name.value == "") inputErrs.add("This part needs a name.");
-                if (status.selectedID.isNegative)
+                if (statusDropdown.selectedID.isNegative)
                   inputErrs.add("You need to chose a status.");
                 if (inputErrs.isNotEmpty) {
                   inputErrs.forEach((e) => customAlert(Alert.warning, e));
@@ -110,7 +110,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                   "id": json["id"],
                   "name": name.value,
                   "count": newCount,
-                  "status": session["statusList"][status.selectedID],
+                  "status": statusDropdown.selectedID,
                   "parentID": json["parentID"],
                 };
                 String apiErr = await update(editedJson, editType, Item.parts);
