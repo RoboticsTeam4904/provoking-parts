@@ -25,3 +25,9 @@ extension Part {
         return children(\.parentPartID)
     }
 }
+
+extension Part: Content {}
+
+extension Part: Parameter {}
+
+extension Part: Migration {}

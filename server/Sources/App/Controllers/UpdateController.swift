@@ -7,7 +7,7 @@ final class UpdateController {
         return map(
             to: State.self,
             Part.query(on: req).all(),
-            Status.query(on: req)) { parts, statuses, _ in
+            Status.query(on: req).all()) { parts, statuses, _ in
             return State(parts: parts, statuses: statuses)
         }
     }

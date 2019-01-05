@@ -11,3 +11,9 @@ struct StatusUpdate: Content {
     var label: String?
     var color: Int?
 }
+
+extension Status: Content {}
+
+extension Status: Parameter {}
+
+extension Status: Migration {}
