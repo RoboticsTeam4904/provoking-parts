@@ -32,13 +32,13 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.prepareCache(for: .psql)
     services.register(migrations)
 
-    // services.register(KeyedCache.self) { container in
-    //     try container.keyedCache(for: .psql)
-    // }
+    services.register(KeyedCache.self) { container in
+        try container.keyedCache(for: .psql)
+    }
 
-    // config.prefer(
-    //     DatabaseKeyedCache<ConfiguredDatabase<PostgreSQLDatabase>>.self,
-    //     for: KeyedCache.self)
+    config.prefer(
+        DatabaseKeyedCache<ConfiguredDatabase<PostgreSQLDatabase>>.self,
+        for: KeyedCache.self)
     
     // Register routes to the router
     let router = EngineRouter.default()
