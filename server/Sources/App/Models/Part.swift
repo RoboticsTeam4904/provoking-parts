@@ -17,6 +17,10 @@ struct PartUpdate: Content {
 }
 
 extension Part {
+    var status: Children<Part, Status> {
+        return children(\.statusID)
+    }
+
     var subparts: Children<Part, Part> {
         return children(\.parentPartID)
     }

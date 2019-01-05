@@ -31,5 +31,6 @@ public func routes(_ router: Router) throws {
     protected.delete("parts", Part.parameter, use: partController.delete)
 
     let updateController = UpdateController()
+    protected.get("init", use: updateController.initialize)
     protected.get("updates", use: updateController.handle)
 }
