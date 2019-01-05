@@ -6,11 +6,15 @@ DivElement googleSignIn = document.querySelector("#googleSignIn");
 DivElement partsList = document.querySelector("#partsList");
 
 void main() {
+  try {
   document.onClick.listen((_) {
     createImplicitBrowserFlow(ClientId(clientID, null), ["profile"]).then(
         (flow) =>
-            flow.clientViaUserConsent().then((client) => authClient = client));
+            flow.clientViaUserConsent());
   });
+  } catch (e) {
+    customAlert(Alert.error, e.toString());
+  }
   // initAlertElem();
   // initModalElems();
   // googleSignIn.onClick.listen((_) async {
