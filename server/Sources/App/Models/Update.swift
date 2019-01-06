@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 struct Update<UpdateModel: AnyModel>: Content {
-    var timestamp: Date
+    var timestamp: DateTime
     var model: String
 
     var user: GoogleProfile?
