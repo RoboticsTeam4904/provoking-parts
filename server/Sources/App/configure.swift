@@ -9,7 +9,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     // Configure a Postgres database
     let postgresConfig = PostgreSQLDatabaseConfig(
         url: Environment.get("DATABASE_URL") ??
-            "postgres://parts@localhost:5432/parts"
+            "postgres://parts:parts@localhost:5432/parts"
     )!
 
     let postgres = PostgreSQLDatabase(config: postgresConfig)
