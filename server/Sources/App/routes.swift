@@ -22,11 +22,6 @@ public func routes(_ router: Router) throws {
         }
     }
 
-    let files = try req.make(FileMiddleware.self)
-    router.get { req in
-        req.http.url
-    }
-
     let api = router.grouped("api")
     let protected = api.grouped(ImperialMiddleware())
 
