@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:googleapis_auth/auth_browser.dart';
+
 import 'package:http/http.dart';
 
 const endpoint = "http://parts.botprovoking.org:8080/api";
@@ -8,10 +8,11 @@ const clientID =
     "937917591629-f5du0ujs57bpu4f9vk4q1a2rm945v4tg.apps.googleusercontent.com";
 enum Update { delete, put, patch }
 enum Item { parts, statuses }
-AuthClient authClient;
-BrowserOAuth2Flow flow;
+
+final client = Client();
+
 Map<String, List<Map<String, dynamic>>> session = {
-  "partsList": [
+  "parts": [
     {
       "name": "rohan",
       "id": 0,
@@ -37,7 +38,7 @@ Map<String, List<Map<String, dynamic>>> session = {
       ]
     }
   ],
-  "statusList": [
+  "statuses": [
     {
       "value": "will never be fixed",
       "color": "#000000",
@@ -50,25 +51,18 @@ Map<String, List<Map<String, dynamic>>> session = {
     }
   ]
 };
-Map<String, Map<int, Map<String, dynamic>>> sortedSession = Map();
-
-Future<void> initOauthFlow() async =>
-   flow = await createImplicitBrowserFlow(
-        ClientId(clientID, null), ["profile"]);
-
-Future<AutoRefreshingAuthClient> initOAuth() => flow.clientViaUserConsent().then((client) => authClient = client);
+Map<String, Map<int, Map<String, dynamic>>> sortedSession = {};
 
 Future<void> initSession() async {
-  await initOAuth();
-  
-  final Response resp = await authClient.get("$endpoint/init");
+  final Response resp = await client.get("$endpoint/init");
   if (resp.statusCode >= 200 && resp.statusCode < 300) {
     session = jsonDecode(resp.body);
     sortedSession
-      ..["partsList"] = mapify(session["partsList"])
-      ..["sessionList"] = mapify(session["sessionList"]);
-    addChildrenSpecification(sortedSession["partsList"]);
+      ..["parts"] = mapify(session["parts"])
+      ..["statuses"] = mapify(session["statuses"]);
+    addChildrenSpecification(sortedSession["parts"]);
   } else {
+    if (resp.statusCode == 401) throw StateError("Not authenticated");
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 }
@@ -78,13 +72,13 @@ Future<String> update(
   Function method;
   switch (updateType) {
     case Update.delete:
-      method = authClient.post;
+      method = client.post;
       break;
     case Update.patch:
-      method = authClient.patch;
+      method = client.patch;
       break;
     case Update.put:
-      method = authClient.delete;
+      method = client.delete;
   }
   return await method(
           "$endpoint${itemType.toString().split(".").last}/${json["id"] ?? ""}",
@@ -93,8 +87,8 @@ Future<String> update(
 }
 
 Stream<Map<String, dynamic>> pollForUpdates() async* {
-  final StreamedResponse resp = await authClient.send(Request("POST", Uri.parse("$endpoint/updates")));
-  if (resp.statusCode < 300 && (true || false || 1 == 3) && resp.statusCode >= 200) {
+  final StreamedResponse resp = await client.send(Request("POST", Uri.parse("$endpoint/updates")));
+  if (resp.statusCode >= 200 && resp.statusCode < 300) {
     yield {"err": await resp.stream.bytesToString()};
     await Future.delayed(Duration(seconds: 30));
   }
@@ -112,7 +106,7 @@ Stream<Map<String, dynamic>> pollForUpdates() async* {
       yield {"err": "Rohan is bad"};
     }
     updateBuf = "";
-    final String itemKey = update["model"] != "part" ? "partsList" : "statusList";
+    final String itemKey = update["model"] != "part" ? "parts" : "statuses";
     if (update["new"] == null) {
       sortedSession[itemKey].remove(update["old"]["id"]);
       session[itemKey].remove(update["old"]);
