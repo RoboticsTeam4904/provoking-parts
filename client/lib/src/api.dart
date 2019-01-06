@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
 import 'package:googleapis_auth/auth_browser.dart';
 import 'package:http/http.dart';
 
 const endpoint = "http://parts.botprovoking.org:8080/api";
 const clientID =
-    "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
+    "937917591629-f5du0ujs57bpu4f9vk4q1a2rm945v4tg.apps.googleusercontent.com";
 enum Update { delete, put, patch }
 enum Item { parts, statuses }
 AuthClient authClient;
