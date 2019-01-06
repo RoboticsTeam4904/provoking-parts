@@ -70,7 +70,7 @@ Future<void> initSession() async {
       ..["sessionList"] = mapify(session["sessionList"]);
     addChildrenSpecification(sortedSession["partsList"]);
   } else {
-    throw Exception("${resp.statusCode}: {resp.body}");
+    throw Exception("${resp.statusCode}: ${resp.body}");
   }
 }
 
