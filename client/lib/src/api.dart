@@ -57,28 +57,21 @@ Future<void> initOauthFlow() async =>
    flow = await createImplicitBrowserFlow(
         ClientId(clientID, null), ["profile"]);
 
-Future<String> initOAuth() async {
-  try {
-    await flow.clientViaUserConsent().then((client) => authClient = client);
-  } catch (e) {
-    return e.toString();
-  }
-  return null;
-}
+Future<AutoRefreshingAuthClient> initOAuth() => flow.clientViaUserConsent().then((client) => authClient = client);
 
-Future<String> initSession() async {
-  final String oAuth = await initOAuth();
-  if (oAuth != null) return oAuth;
+Future<void> initSession() async {
+  await initOAuth();
+  
   final Response resp = await authClient.get("$endpoint/init");
-  if ((resp.statusCode / 200).floor() == 1) {
+  if (resp.statusCode >= 200 && resp.statusCode < 300) {
     session = jsonDecode(resp.body);
     sortedSession
       ..["partsList"] = mapify(session["partsList"])
       ..["sessionList"] = mapify(session["sessionList"]);
     addChildrenSpecification(sortedSession["partsList"]);
-    return null;
+  } else {
+    throw Exception("${resp.statusCode}: {resp.body}");
   }
-  return resp.body;
 }
 
 Future<String> update(
