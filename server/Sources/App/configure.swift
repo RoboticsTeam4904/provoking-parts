@@ -29,6 +29,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     // Configure migrations
     var migrations = MigrationConfig()
     migrations.add(model: Part.self, database: .psql)
+    migrations.add(model: Status.self, database: .psql)
+    migrations.add(model: GoogleProfile.self, database: .psql)
     migrations.prepareCache(for: .psql)
     services.register(migrations)
 

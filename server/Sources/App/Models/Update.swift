@@ -1,5 +1,5 @@
 import Vapor
-import FluentPostgreSQL
+import Fluent
 
 struct Update<UpdateModel: AnyModel>: Content {
     var timestamp: Date
