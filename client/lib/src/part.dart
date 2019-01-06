@@ -42,7 +42,7 @@ DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
       ..text = json["name"],
     SpanElement()
       ..className = "partCount"
-      ..text = json["count"].toString(),
+      ..text = json["quantity"].toString(),
     ImageElement(src: "plus.png", width: 20, height: 20)
       ..className = "addPart"
       ..onClick.listen((e) {
@@ -53,10 +53,9 @@ DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
   ]);
 
 DivElement partEditMenu([Map<String, dynamic> json]) {
-  json.putIfAbsent("status", () => {});
   final Update editType = json != null ? Update.patch : Update.put;
   final DivElement menu = DivElement();
-  final StatusDropdown status = StatusDropdown(json["status"]["id"]);
+  final StatusDropdown status = StatusDropdown(json["statusID"]);
   InputElement name, count;
   return menu
     ..children.add(DivElement()
@@ -74,7 +73,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
             BRElement(),
             count = InputElement(type: "number")
               ..className = "count"
-              ..value = json["count"].toString(),
+              ..value = json["quantity"].toString(),
             status.dropdownElem..className = "status"
           ]),
         DivElement()
@@ -98,7 +97,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                     (newCount?.isNegative ?? false))
                   inputErrs.add(
                       "The quantity of this part must be a natural number.");
-                if (name.value == "") inputErrs.add("This part needs a name.");
+                if (name.value.isEmpty) inputErrs.add("This part needs a name.");
                 if (status.selectedID.isNegative)
                   inputErrs.add("You need to chose a status.");
                 if (inputErrs.isNotEmpty) {
@@ -110,12 +109,11 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                 final Map<String, dynamic> editedJson = {
                   "id": json["id"],
                   "name": name.value,
-                  "count": newCount,
-                  "statusID": session["statuses"][status.selectedID]["id"],
+                  "quantity": newCount,
+                  "statusID": status.selectedID,
                   "parentID": json["parentID"],
                 };
-                String
-                    apiErr/*= await update(editedJson, editType, Item.parts)*/;
+                String apiErr = await update(editedJson, editType, Item.parts);
                 if (apiErr != null) {
                   customAlert(Alert.error,
                       "Error while communicating with server: $apiErr");

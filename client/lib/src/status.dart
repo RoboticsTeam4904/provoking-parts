@@ -40,7 +40,7 @@ class StatusDropdown {
 
 SpanElement makeStatus(Map<String, dynamic> status) => SpanElement()
   ..className = "partStatus"
-  ..text = "Status: ${status["value"]}  "
+  ..text = "Status: ${status["label"]}  "
   ..children.add(DivElement()
     ..className = "statusColor"
-    ..style.backgroundColor = status["color"]);
+    ..style.backgroundColor = ("#" + (status["color"] as int).toRadixString(16)));

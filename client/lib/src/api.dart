@@ -16,23 +16,15 @@ Map<String, List<Map<String, dynamic>>> session = {
     {
       "name": "rohan",
       "id": 0,
-      "count": 1,
-      "status": {
-        "value": "will never be fixed",
-        "color": "#000000",
-        "id": 0,
-      },
+      "quantity": 1,
+      "statusID": 0,
       "children": [
         {
           "name": "big dum",
           "id": 1,
           "parentID": 0,
-          "count": 999999,
-          "status": {
-            "value": "no u",
-            "color": "#ff0000",
-            "id": 1,
-          },
+          "quantity": 999999,
+          "statusID": 1,
           "children": []
         }
       ]
@@ -40,23 +32,26 @@ Map<String, List<Map<String, dynamic>>> session = {
   ],
   "statuses": [
     {
-      "value": "will never be fixed",
-      "color": "#000000",
+      "label": "will never be fixed",
+      "color": 0x000000,
       "id": 0,
     },
     {
-      "value": "no u",
-      "color": "#ff0000",
+      "label": "no u",
+      "color": 0xff0000,
       "id": 1,
     }
   ]
 };
+
 Map<String, Map<int, Map<String, dynamic>>> sortedSession = {};
 
 Future<void> initSession() async {
   final resp = await client.get("$endpoint/init");
   if (resp.statusCode >= 200 && resp.statusCode < 300) {
-    session = jsonDecode(resp.body);
+    final incomingSession = jsonDecode(resp.body) as Map<String, dynamic>;
+    session["parts"].addAll(List.from(incomingSession["parts"]));
+    session["statuses"].addAll(List.from(incomingSession["statuses"]));
     sortedSession
       ..["parts"] = mapify(session["parts"])
       ..["statuses"] = mapify(session["statuses"]);
@@ -81,7 +76,7 @@ Future<String> update(
       method = client.delete;
   }
   return await method(
-          "$endpoint${itemType.toString().split(".").last}/${json["id"] ?? ""}",
+          "$endpoint/${itemType.toString().split(".").last}/${json["id"] ?? ""}",
           body: json)
       .body;
 }
@@ -97,8 +92,7 @@ Stream<Map<String, dynamic>> pollForUpdates() async* {
     if (char != "\n") {
       updateBuf += char;
       continue;
-    }
-    if (updateBuf.isEmpty) continue;
+    } else if (updateBuf.isEmpty) continue;
     Map<String, dynamic> update;
     try {
       update = jsonDecode(updateBuf);
@@ -106,7 +100,7 @@ Stream<Map<String, dynamic>> pollForUpdates() async* {
       yield {"err": "Rohan is bad"};
     }
     updateBuf = "";
-    final String itemKey = update["model"] != "part" ? "parts" : "statuses";
+    final String itemKey = update["model"] != "Part" ? "parts" : "statuses";
     if (update["new"] == null) {
       sortedSession[itemKey].remove(update["old"]["id"]);
       session[itemKey].remove(update["old"]);
