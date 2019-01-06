@@ -5,7 +5,7 @@ public func routes(_ router: Router) throws {
     try router.oAuth(
         from: Google.self,
         authenticate: "google",
-        callback: "http://localhost:8080/callback/google",
+        callback: "http://parts.botprovoking.org:8080/callback/google",
         scope: ["profile"]) { (req, token) in
 
         let url = URL(string:
@@ -22,8 +22,9 @@ public func routes(_ router: Router) throws {
         }
     }
 
+    let files = try req.make(FileMiddleware.self)
     router.get { req in
-        req.redirect(to: "/index.html")
+        req.http.url
     }
 
     let api = router.grouped("api")
