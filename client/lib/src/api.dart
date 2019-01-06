@@ -54,7 +54,7 @@ Map<String, List<Map<String, dynamic>>> session = {
 Map<String, Map<int, Map<String, dynamic>>> sortedSession = {};
 
 Future<void> initSession() async {
-  final Response resp = await client.get("$endpoint/init");
+  final resp = await client.get("$endpoint/init");
   if (resp.statusCode >= 200 && resp.statusCode < 300) {
     session = jsonDecode(resp.body);
     sortedSession

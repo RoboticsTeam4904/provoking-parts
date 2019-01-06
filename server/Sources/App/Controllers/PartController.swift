@@ -45,8 +45,8 @@ final class PartController {
                     part.statusID = statusID
                 }
 
-                if let parentPartID = data.parentPartID {
-                    part.parentPartID = parentPartID
+                if let parentID = data.parentID {
+                    part.parentID = parentID
                 }
 
                 return part.update(on: req).flatMap { newPart in

@@ -1,7 +1,6 @@
 import 'dart:html';
 import 'package:client/client.dart';
 
-DivElement signIn = document.querySelector("#signIn");
 DivElement partsList = document.querySelector("#partsList");
 
 Future<void> main() async {
@@ -13,9 +12,11 @@ Future<void> main() async {
   } on StateError {
     // Redirect to authentication
     window.location.pathname = "/google";
+    return;
   } catch (err) {
     customAlert(Alert.error, err.toString());
   }
+
   partsList.children = List<DivElement>.generate(session["parts"].length,
       (i) => makeFullPart(session["parts"][i], topLevel: true));
   await for (var update in pollForUpdates()) {

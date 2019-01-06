@@ -6,14 +6,14 @@ struct Part: PostgreSQLModel {
     var name: String
     var quantity: Int
     var statusID: Int
-    var parentPartID: Int?
+    var parentID: Int?
 }
 
 struct PartUpdate: Content {
     var name: String?
     var quantity: Int?
     var statusID: Int?
-    var parentPartID: Int?
+    var parentID: Int?
 }
 
 extension Part {
@@ -22,7 +22,7 @@ extension Part {
     }
 
     var subparts: Children<Part, Part> {
-        return children(\.parentPartID)
+        return children(\.parentID)
     }
 }
 
