@@ -15,4 +15,4 @@ extension GoogleProfile: Content {}
 
 extension GoogleProfile: Parameter {}
 
-extension GoogleProfile: Migration {}
+extension GoogleProfile: PostgreSQLMigration {}

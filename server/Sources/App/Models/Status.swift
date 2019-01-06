@@ -16,4 +16,4 @@ extension Status: Content {}
 
 extension Status: Parameter {}
 
-extension Status: Migration {}
+extension Status: PostgreSQLMigration {}
