@@ -10,3 +10,9 @@ struct GoogleProfile: PostgreSQLStringModel {
     var gender: String?
     var locale: String
 }
+
+extension GoogleProfile: Content {}
+
+extension GoogleProfile: Parameter {}
+
+extension GoogleProfile: Migration {}
