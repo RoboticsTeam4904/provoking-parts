@@ -6,8 +6,8 @@ import 'package:http/http.dart';
 const endpoint = "http://parts.botprovoking.org:8080/api";
 const clientID =
     "937917591629-f5du0ujs57bpu4f9vk4q1a2rm945v4tg.apps.googleusercontent.com";
-enum Update { delete, put, patch }
-enum Item { parts, statuses }
+enum UpdateType { delete, put, patch }
+enum ItemType { parts, statuses }
 
 final client = Client();
 
@@ -18,16 +18,13 @@ Map<String, List<Map<String, dynamic>>> session = {
       "id": 0,
       "quantity": 1,
       "statusID": 0,
-      "children": [
-        {
-          "name": "big dum",
-          "id": 1,
-          "parentID": 0,
-          "quantity": 999999,
-          "statusID": 1,
-          "children": []
-        }
-      ]
+    },
+    {
+      "name": "big dum",
+      "id": 1,
+      "parentID": 0,
+      "quantity": 999999,
+      "statusID": 1
     }
   ],
   "statuses": [
@@ -49,7 +46,7 @@ Map<String, Map<int, Map<String, dynamic>>> sortedSession = {};
 Future<void> initSession() async {
   final resp = await client.get("$endpoint/init");
   if (resp.statusCode >= 200 && resp.statusCode < 300) {
-    final incomingSession = jsonDecode(resp.body) as Map<String, dynamic>;
+    final incomingSession = jsonDecode(resp.body);
     session["parts"].addAll(List.from(incomingSession["parts"]));
     session["statuses"].addAll(List.from(incomingSession["statuses"]));
     sortedSession
@@ -62,27 +59,30 @@ Future<void> initSession() async {
   }
 }
 
-Future<String> update(
-    Map<String, dynamic> json, Update updateType, Item itemType) async {
-  Function method;
+Future<Response> update(
+    Map<String, dynamic> json, UpdateType updateType, ItemType itemType) {
+  print(json);
+  print(updateType.toString());
+  print(itemType.toString());
+
+  final modelEndpoint = "$endpoint/${itemType.toString().split(".").last}";
+  final id = json["id"];
+
   switch (updateType) {
-    case Update.delete:
-      method = client.post;
-      break;
-    case Update.patch:
-      method = client.patch;
-      break;
-    case Update.put:
-      method = client.delete;
+    case UpdateType.put:
+      return client.post(modelEndpoint, body: json);
+    case UpdateType.patch:
+      return client.patch("$modelEndpoint/$id", body: json);
+    case UpdateType.delete:
+      return client.delete("$modelEndpoint/$id");
   }
-  return await method(
-          "$endpoint/${itemType.toString().split(".").last}/${json["id"] ?? ""}",
-          body: json)
-      .body;
+
+  throw UnimplementedError();
 }
 
 Stream<Map<String, dynamic>> pollForUpdates() async* {
-  final StreamedResponse resp = await client.send(Request("POST", Uri.parse("$endpoint/updates")));
+  final StreamedResponse resp =
+      await client.send(Request("POST", Uri.parse("$endpoint/updates")));
   if (resp.statusCode >= 200 && resp.statusCode < 300) {
     yield {"err": await resp.stream.bytesToString()};
     await Future.delayed(Duration(seconds: 30));

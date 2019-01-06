@@ -15,8 +15,7 @@ DivElement makeFullPart(Map<String, dynamic> json, {bool topLevel = false}) =>
         makeSinglePart(json),
         DivElement()
           ..className = "partChildren"
-          ..children.addAll(List.generate(json["children"].length,
-              (i) => makeFullPart(json["children"][i])))
+          ..children.addAll(json["children"].map(makeFullPart))
       ]);
 
 DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
@@ -53,7 +52,7 @@ DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
   ]);
 
 DivElement partEditMenu([Map<String, dynamic> json]) {
-  final Update editType = json != null ? Update.patch : Update.put;
+  final UpdateType editType = json.containsKey("id") ? UpdateType.patch : UpdateType.put;
   final DivElement menu = DivElement();
   final StatusDropdown status = StatusDropdown(json["statusID"]);
   InputElement name, count;
@@ -113,18 +112,17 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                   "statusID": status.selectedID,
                   "parentID": json["parentID"],
                 };
-                String apiErr = await update(editedJson, editType, Item.parts);
-                if (apiErr != null) {
+                try {
+                  await update(editedJson, editType, ItemType.parts);
+                  customAlert(
+                    Alert.success, "Successfully updated ${name.value}.");
+                } catch (err) {
                   customAlert(Alert.error,
-                      "Error while communicating with server: $apiErr");
+                      "Error while communicating with server: ${err.toString()}");
+                } finally {
                   loading.remove();
                   menu.children.first.style.display = "";
-                  return;
                 }
-                customAlert(
-                    Alert.success, "Successfully updated ${name.value}.");
-                loading.remove();
-                menu.children.first.style.display = "";
               })
           ])
       ]));
