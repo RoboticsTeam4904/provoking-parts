@@ -49,11 +49,11 @@ DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
         e.stopPropagation();
         showModal(partEditMenu({"parentID": json["parentID"]}));
       }),
-    makeStatus(json["status"]),
+    makeStatus(sortedSession["statuses"][json["statusID"]]),
   ]);
 
 DivElement partEditMenu([Map<String, dynamic> json]) {
-  json.putIfAbsent("status", () => Map());
+  json.putIfAbsent("status", () => {});
   final Update editType = json != null ? Update.patch : Update.put;
   final DivElement menu = DivElement();
   final StatusDropdown status = StatusDropdown(json["status"]["id"]);
@@ -92,7 +92,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                 menu.children
                   ..add(loading)
                   ..first.style.display = "none";
-                final List<String> inputErrs = List();
+                final List<String> inputErrs = [];
                 int newCount;
                 if ((newCount = int.tryParse(count.value)) == null ||
                     (newCount?.isNegative ?? false))
@@ -111,7 +111,7 @@ DivElement partEditMenu([Map<String, dynamic> json]) {
                   "id": json["id"],
                   "name": name.value,
                   "count": newCount,
-                  "status": session["statusList"][status.selectedID],
+                  "statusID": session["statuses"][status.selectedID]["id"],
                   "parentID": json["parentID"],
                 };
                 String
