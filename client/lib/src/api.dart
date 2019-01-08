@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:googleapis_auth/auth_browser.dart';
+import 'package:http/browser_client.dart';
 import 'package:http/http.dart';
 
-const endpoint = "https://TODO.com/api/";
+const endpoint = "https://botprovoking.org/api";
 const clientID =
     "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
-enum Update { delete, create, patch }
+enum UpdateType { delete, create, patch }
 enum ModelType { part, status }
 
 abstract class Model {}
@@ -38,62 +38,52 @@ class StatusModel extends Model {
 }
 
 class Session {
-  AuthClient authClient;
+  BrowserClient client = BrowserClient();
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
 
   Session();
 
-  Future<String> initSession() async {
-    authClient = await getOAuthClient();
-    final resp = await authClient.get("$endpoint/init");
+  Future<void> initSession() async {
+    final resp = await client.get("$endpoint/init");
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      final Map<String, List<Map<String, dynamic>>> initJSON =
+      final Map<String, List<Map<String, dynamic>>> initJson =
           jsonDecode(resp.body);
-      for (Map<String, dynamic> statusJSON in initJSON["statuses"]) {
-        final s = StatusModel.fromJson(statusJSON);
-        statuses[s.id] = s;
-      }
-      for (Map<String, dynamic> partJSON in initJSON["parts"]) {
-        final p = PartModel.fromJson(partJSON, statuses);
-        parts[p.id] = p;
-      }
+      for (Map<String, dynamic> statusJson in initJson["statuses"])
+        addStatus(StatusModel.fromJson(statusJson));
+      for (Map<String, dynamic> partJson in initJson["parts"])
+        addPart(PartModel.fromJson(partJson, statuses));
       for (PartModel part in parts.values)
         parts[part.parentID].children?.add(part);
-      return null;
     }
-    return resp.body;
+    throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<AuthClient> getOAuthClient() => createImplicitBrowserFlow(
-          ClientId(clientID, null), ["email", "name", "openid"])
-      .then((flow) =>
-          flow.clientViaUserConsent().then((client) => authClient = client));
-
-  Future<String> update(
-      Map<String, dynamic> json, Update updateType, ModelType type) async {
-    Function method;
+  Future<void> update(
+      Map<String, dynamic> json, UpdateType updateType, ModelType type) async {
     Response resp;
     final url =
-        "$endpoint${type.toString().split(".").last}/${json["id"] ?? ""}";
+        "$endpoint/${type.toString().split(".").last}/${json["id"] ?? ""}";
     switch (updateType) {
-      case Update.delete:
-        resp = await authClient.delete(url);
+      case UpdateType.delete:
+        resp = await client.delete(url);
         break;
-      case Update.patch:
-        method = authClient.patch;
+      case UpdateType.patch:
+        resp = await client.patch(url, body: json);
         break;
-      case Update.create:
-        method = authClient.post;
+      case UpdateType.create:
+        resp = await client.post(url, body: json);
+        break;
+      default:
+        throw UnimplementedError("Something really bad hapenned :(");
     }
-    resp ??= await method(url, body: json).body;
-    if (resp.statusCode >= 200 && resp.statusCode < 300) return null;
-    return resp.body;
+    if (resp.statusCode >= 200 && resp.statusCode < 300) return;
+    throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
     final StreamedResponse resp =
-        await authClient.send(Request("POST", Uri.parse("$endpoint/updates")));
+        await client.send(Request("POST", Uri.parse("$endpoint/updates")));
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       yield {"err": await resp.stream.bytesToString()};
       return;
@@ -103,13 +93,11 @@ class Session {
       if (char != "\n") {
         updateBuf += char;
         continue;
-      }
-      if (updateBuf.isEmpty) continue;
-      Map<String, dynamic> update;
-      update = jsonDecode(updateBuf);
+      } else if (updateBuf.isEmpty) continue;
+      final update = jsonDecode(updateBuf);
       updateBuf = "";
 
-      if (update["new"] == null) if (update["model"] != "status")
+      if (update["new"] == null) if (update["model"] != "Status")
         parts.remove(update["old"]["id"]);
       else
         statuses.remove(update["old"]["id"]);
@@ -119,19 +107,15 @@ class Session {
           parts[newPart.id] = newPart;
           parts[newPart.parentID].children.add(newPart);
         } else {
-          final newStatus = StatusModel.fromJson(update["new"]);
+          final newStatus = statuses[update["new"]["statusId"]];
           statuses[newStatus.id] = newStatus;
         }
       }
       yield update;
     }
   }
-}
 
-Map<int, Map<String, dynamic>> mapify(List<Map<String, dynamic>> json) =>
-    Map.fromIterable(json, key: (e) => e["id"]);
+  void addPart(PartModel part) => parts[part.id] = part;
 
-void addChildrenSpecification(Map<int, Map<String, dynamic>> json) {
-  for (var value in json.values)
-    (json[value["parentID"]]["children"] ??= []).add(value);
+  void addStatus(StatusModel status) => statuses[status.id] = status;
 }

@@ -1,20 +1,20 @@
 import 'dart:html';
 
-DivElement modal;
-DivElement msgContainer;
+class Modal {
+  Element modalContainer;
+  Element msg;
 
-void initModalElems([DivElement modalElem, DivElement msgContainerElem]) {
-  modal = modalElem ?? document.querySelector("#modal");
-  msgContainer = msgContainerElem ?? modal.querySelector("#messageContainer");
-  document
-      .querySelector("#screenCover")
-      .onClick
-      .listen((_) => closeModal());
+  Modal(this.modalContainer, Element screenCover) {
+    screenCover..onClick.listen((_) => close());
+  }
+
+  void show(Element msg) {
+    modalContainer.children.add(msg..className += " modalMessage");
+    modalContainer.style.display = "flex";
+  }
+  
+  void close() { 
+    modalContainer.style.display = "none";
+    msg.remove();
+  }
 }
-
-void showModal(Element msg) {
-  msgContainer.children.last = msg..className += " modalMessage";
-  modal.style.display = "flex";
-}
-
-void closeModal() => modal.style.display = "none";

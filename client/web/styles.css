@@ -92,7 +92,7 @@ img {
   height: 100%;
 }
 
-#messageContainer {
+#modalMessage {
   display: flex;
   margin-top: 20%;
   position: absolute;

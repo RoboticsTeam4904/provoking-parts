@@ -1,46 +1,57 @@
 import 'dart:html';
 import 'api.dart';
 
-class StatusDropdown {
-  bool open = false;
-  int selectedID;
-  Element selected;
-  DivElement selectedElem, optionsElem, dropdownElem;
+class StatusHtml {
+  StatusModel model;
+  SpanElement elem;
+  DivElement colorElem;
 
-  StatusDropdown([this.selectedID = -1]) {
-    selectedElem = DivElement()
-      ..className = "selected"
-      ..children.add(DivElement());
-    optionsElem = DivElement()
-      ..className = "option"
-      ..children.addAll(List.generate(session["statusList"].length, (i) {
-        int id = session["statusList"][i]["id"];
-        Element elem = makeStatus(session["statusList"][i]);
-        if (id == selectedID)
-          selectStatus(elem, id);
-        return DivElement()..children.add(elem..onClick.listen((_) => selectStatus(elem, id)));
-      }))
-      ..style.display = "none";
-    if (selected == null) selectedElem.children.first = SpanElement()..text = "Choose...";
-    dropdownElem = DivElement()
-      ..className = "statusDropdown"
-      ..onClick.listen(
-          (_) => optionsElem.style.display = (open = !open) ? "" : "none")
-      ..children = [selectedElem, optionsElem];
+  StatusHtml(this.model) {
+    elem = SpanElement()
+      ..className = "partStatus"
+      ..id = "status${model.id}"
+      ..text = "Status: ${model.label}"
+      ..children.add(colorElem = DivElement()
+        ..className = "statusColor"
+        ..style.backgroundColor = "#${model.color.toRadixString(16))}";
   }
 
-  void selectStatus(Element elem, int id) {
-    if (selected != null) selected.style.display = "";
-    selectedElem.children.first = elem.clone(true);
-    elem.style.display = "none";
-    selected = elem;
-    selectedID = id;
+  void update() {
+    elem.text = "Status: ${model.label}";
+    colorElem.style.backgroundColor = "#${model.color.toRadixString(16))}";
   }
 }
 
-SpanElement makeStatus(Map<String, dynamic> status) => SpanElement()
-  ..className = "partStatus"
-  ..text = "Status: ${status["value"]}  "
-  ..children.add(DivElement()
-    ..className = "statusColor"
-    ..style.backgroundColor = status["color"]);
+class StatusDropdown {
+  DivElement elem;
+  List<Element> options;
+  DivElement optionsContainer;
+  Element selected;
+  DivElement selectedContainer;
+  
+  StatusDropdown(List<StatusHtml> statuses, {StatusModel selectedStatus}) {
+    elem = DivElement()
+      ..className = "statusDropdown"
+      ..children.addAll([
+        selectedContainer = DivElement()
+          ..className = "selected",
+        optionsContainer = DivElement()
+          ..className = "options"
+          ..children
+            ..addAll(options = List.generate(statuses.length,
+              (i) {
+                final elem = statuses[i].elem.clone(true)
+                return elem;
+              }
+            ))
+      ])
+    select(selectedStatus ?? SpanElement()..text = "Choose...");
+  }
+
+  void select(Element newSelected) {
+    selected?.style.display = "";
+    selectedContainer.children = [newSelected.clone(true)]
+    selected = newSelected
+      ..style.display = "none";
+  }
+}

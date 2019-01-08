@@ -2,15 +2,22 @@ import 'dart:html';
 
 enum Alert { error, warning, success }
 
-DivElement alerts;
+const closeWindowImg = "/closewindow.png";
 
-void initAlertElem([DivElement alertsElem]) =>
-    alerts = alertsElem ?? document.querySelector("#alerts");
+class CustomAlert {
+  static DivElement alerts = document.querySelector("#alerts");
+  DivElement elem;
 
-void customAlert(Alert type, String msg) => alerts.children.insert(0, DivElement()
-  ..className = type.toString().replaceFirst(".", " ")
-  ..text = msg
-  ..children.add(new ImageElement(src: '../closewindow.png')
-    ..className = "closeWindow"
-    ..onClick
-        .listen((e) => (e.target as ImageElement).parent.remove())));
+  CustomAlert(Alert type, String msg) {
+    alerts.children.insert(
+        0,
+        elem = DivElement()
+          ..className = type.toString().replaceFirst(".", " ")
+          ..text = msg
+          ..children.add(ImageElement(src: closeWindowImg)
+            ..className = "closeWindow"
+            ..onClick.listen((_) => elem.remove())));
+  }
+
+  void close() => elem.remove();
+}
