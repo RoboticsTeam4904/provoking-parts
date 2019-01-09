@@ -5,15 +5,15 @@ class Modal {
   Element msg;
 
   Modal(this.modalContainer, Element screenCover) {
-    screenCover..onClick.listen((_) => close());
+    screenCover.onClick.listen((_) => close());
   }
 
   void show(Element msg) {
     modalContainer.children.add(msg..className += " modalMessage");
     modalContainer.style.display = "flex";
   }
-  
-  void close() { 
+
+  void close() {
     modalContainer.style.display = "none";
     msg.remove();
   }

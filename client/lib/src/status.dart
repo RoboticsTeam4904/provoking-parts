@@ -1,57 +1,63 @@
 import 'dart:html';
 import 'api.dart';
+import 'input.dart';
 
 class StatusHtml {
-  StatusModel model;
   SpanElement elem;
+  StatusModel model;
   DivElement colorElem;
 
   StatusHtml(this.model) {
     elem = SpanElement()
-      ..className = "partStatus"
+      ..className = "status"
       ..id = "status${model.id}"
       ..text = "Status: ${model.label}"
       ..children.add(colorElem = DivElement()
-        ..className = "statusColor"
-        ..style.backgroundColor = "#${model.color.toRadixString(16))}";
+        ..className = "color"
+        ..style.backgroundColor = "#${model.color.toRadixString(16)}");
+  }
+
+  StatusHtml.fromId(int id, Session session) {
+    StatusHtml(session.statuses[id]);
   }
 
   void update() {
     elem.text = "Status: ${model.label}";
-    colorElem.style.backgroundColor = "#${model.color.toRadixString(16))}";
+    colorElem.style.backgroundColor = "#${model.color.toRadixString(16)}";
   }
 }
 
 class StatusDropdown {
-  DivElement elem;
   List<Element> options;
   DivElement optionsContainer;
-  Element selected;
   DivElement selectedContainer;
-  
-  StatusDropdown(List<StatusHtml> statuses, {StatusModel selectedStatus}) {
-    elem = DivElement()
+  Element selectedElement;
+  int selectedId;
+
+  StatusDropdown(List<StatusHtml> statuses, {StatusHtml selectedStatus}) {
+    DivElement()
       ..className = "statusDropdown"
       ..children.addAll([
-        selectedContainer = DivElement()
-          ..className = "selected",
+        selectedContainer = DivElement()..className = "selected",
         optionsContainer = DivElement()
           ..className = "options"
-          ..children
-            ..addAll(options = List.generate(statuses.length,
-              (i) {
-                final elem = statuses[i].elem.clone(true)
-                return elem;
-              }
-            ))
-      ])
-    select(selectedStatus ?? SpanElement()..text = "Choose...");
+          ..children.addAll(options = List.generate(statuses.length, (i) {
+            final status = statuses[i];
+            final elem = statuses[i].elem.clone(true) as Element;
+            elem.onClick.listen((_) => select(elem, status.model.id));
+            return elem;
+          }))
+      ]);
+    if (selectedStatus != null)
+      select(selectedStatus.elem, selectedStatus.model.id);
+    else
+      selectedContainer.children = [SpanElement()..text = "Choose..."];
   }
 
-  void select(Element newSelected) {
-    selected?.style.display = "";
-    selectedContainer.children = [newSelected.clone(true)]
-    selected = newSelected
-      ..style.display = "none";
+  void select(Element newSelectedElement, int newSelectedId) {
+    selectedId = newSelectedId;
+    selectedElement?.style.display = "";
+    selectedContainer.children = [newSelectedElement.clone(true)];
+    selectedElement = newSelectedElement..style.display = "none";
   }
 }

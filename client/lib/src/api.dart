@@ -13,16 +13,17 @@ abstract class Model {}
 
 class PartModel extends Model {
   String name;
-  StatusModel status;
   List<PartModel> children = [];
-  int id, quantity, parentID;
+  Session session;
+  int id, quantity, parentId, statusId;
+  StatusModel get status => session.statuses[statusId];
 
-  PartModel(this.name, this.status, this.id, this.quantity, this.parentID);
+  PartModel(this.name, this.statusId, this.id, this.quantity, this.parentId,
+      this.session);
 
-  PartModel.fromJson(
-      Map<String, dynamic> json, Map<int, StatusModel> statuses) {
-    PartModel(json["name"], statuses[json["statusID"]], json["id"],
-        json["quantity"], json["parentID"]);
+  PartModel.fromJson(Map<String, dynamic> json, Session session) {
+    PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
+        json["parentID"], session);
   }
 }
 
@@ -34,6 +35,10 @@ class StatusModel extends Model {
 
   StatusModel.fromJson(Map<String, dynamic> json) {
     StatusModel(json["label"], json["id"], json["color"]);
+  }
+
+  void updateFromJson() {
+
   }
 }
 
@@ -52,9 +57,9 @@ class Session {
       for (Map<String, dynamic> statusJson in initJson["statuses"])
         addStatus(StatusModel.fromJson(statusJson));
       for (Map<String, dynamic> partJson in initJson["parts"])
-        addPart(PartModel.fromJson(partJson, statuses));
+        addPart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
-        parts[part.parentID].children?.add(part);
+        parts[part.parentId].children?.add(part);
     }
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
@@ -103,9 +108,9 @@ class Session {
         statuses.remove(update["old"]["id"]);
       else {
         if (update["model"] != "status") {
-          final newPart = PartModel.fromJson(update["new"], statuses);
+          final newPart = PartModel.fromJson(update["new"], this);
           parts[newPart.id] = newPart;
-          parts[newPart.parentID].children.add(newPart);
+          parts[newPart.parentId].children.add(newPart);
         } else {
           final newStatus = statuses[update["new"]["statusId"]];
           statuses[newStatus.id] = newStatus;

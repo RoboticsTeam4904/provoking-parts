@@ -9,125 +9,53 @@ const partImg = "/part.png";
 const plusImg = "/plus.png";
 const loadingAnim = "/loading.png";
 
-DivElement makeFullPart(Map<String, dynamic> json, [bool topLevel = false]) =>
-    DivElement()
+class PartHtml {
+  DivElement elem;
+  PartModel model;
+  Modal modal;
+  DivElement childrenContainer;
+  StatusHtml status;
+  bool childrenDisplayed = true;
+
+  PartHtml(this.model, this.modal, {bool topLevel = false}) {
+    elem = DivElement()
       ..className = "partContainer"
-      ..id = "part${json["id"]}"
+      ..id = "part${model.id}"
       ..style.paddingLeft = "${topLevel ? 0 : 20}px"
       ..children.addAll([
-        makeSinglePart(json),
-        DivElement()
+        isolatedPartElem(),
+        childrenContainer = DivElement()
           ..className = "partChildren"
-          ..children.addAll(List.generate(json["children"].length,
-              (i) => makeFullPart(json["children"][i])))
+          ..children.addAll(List.generate(model.children.length,
+              (i) => PartHtml(model.children[i], modal).elem))
       ]);
+  }
 
-DivElement makeSinglePart(Map<String, dynamic> json) =>
-    DivElement()
-      ..className = "part"
-      ..onClick.listen((e) => showModal(partEditMenu(json)))
-      ..children.addAll([
-        json["children"].isEmpty
-            ? (ImageElement(src: partImg)..className = "partIcon")
-            : (ImageElement(src: "${discloserTriangleImg}true.png")
-              ..onClick.listen((e) {
-                final ImageElement disclosureTri = e.target;
-                final partChildren = document
-                    .querySelector("part${json["id"]}")
-                    .querySelector(".partChildren");
-                bool disclosed = (partChildren.style.display == "none");
-                disclosureTri.src = "${discloserTriangleImg}${disclosed}.png";
-                partChildren.style.display = disclosed ? "block" : "none";
-              })
-              ..className = "partIcon disclosureTri"),
-        SpanElement()
-          ..className = "partName"
-          ..text = json["name"],
-        SpanElement()
-          ..className = "partCount"
-          ..text = json["count"].toString(),
-        ImageElement(src: plusImg, width: 20, height: 20)
-          ..className = "addPart"
-          ..onClick.listen((e) {
-            showModal(partEditMenu({"parentID": json["parentID"]}));
-            e.stopPropagation();
-          }),
-        makeStatus(json["status"]),
-      ]);
-
-DivElement partEditMenu([Map<String, dynamic> json]) {
-  json.putIfAbsent("status", () => Map());
-  final editType = json != null ? UpdateType.patch : UpdateType.create;
-  final menu = DivElement();
-  final statusDropdown = StatusDropdown(json["status"]["id"]);
-  InputElement name, count;
-  return menu
-    ..children.add(DivElement()
-      ..className = "partEditMenu"
-      ..children.addAll([
-        DivElement()
-          ..className = "title"
-          ..text = "Part ID #${json["id"] ?? "new"}",
-        DivElement()
-          ..className = "inputs"
-          ..children.addAll([
-            name = InputElement(type: "text")
-              ..className = "name"
-              ..value = json["name"] ?? "",
-            BRElement(),
-            count = InputElement(type: "number")
-              ..className = "count"
-              ..value = json["count"].toString(),
-            statusDropdown.dropdownElem..className = "status"
-          ]),
-        DivElement()
-          ..className = "end"
-          ..children.addAll([
-            ButtonElement()
-              ..className = "close"
-              ..text = "Cancel"
-              ..onClick.listen((_) => closeModal()),
-            ButtonElement()
-              ..className = "save"
-              ..text = "Save"
-              ..onClick.listen((_) async {
-                menu.children.first.style.display = "none";
-                Element loading = ImageElement(src: loadingAnim);
-                menu.children.add(loading);
-                List<String> inputErrs = List();
-                int newCount;
-                if ((newCount = int.tryParse(count.value)) == null ||
-                    (newCount?.isNegative ?? false))
-                  inputErrs.add(
-                      "The quantity of this part must be a natural number.");
-                if (name.value == "") inputErrs.add("This part needs a name.");
-                if (statusDropdown.selectedID.isNegative)
-                  inputErrs.add("You need to chose a status.");
-                if (inputErrs.isNotEmpty) {
-                  inputErrs.forEach((e) => customAlert(Alert.warning, e));
-                  loading.remove();
-                  menu.children.first.style.display = "";
-                  return;
-                }
-                Map<String, dynamic> editedJson = {
-                  "id": json["id"],
-                  "name": name.value,
-                  "count": newCount,
-                  "status": statusDropdown.selectedID,
-                  "parentID": json["parentID"],
-                };
-                String apiErr = await update(editedJson, editType, Item.parts);
-                if (apiErr != null) {
-                  customAlert(Alert.error, "Error while communicating with server: " + apiErr);
-                  loading.remove();
-                  menu.children.first.style.display = "";
-                  return;
-                }
-                customAlert(
-                    Alert.success, "Successfully updated ${name.value}.");
-                loading.remove();
-                menu.children.first.style.display = "";
-              })
-          ])
-      ]));
+  DivElement isolatedPartElem() => DivElement()
+    ..className = "part"
+    ..onClick.listen((_) => modal.show(partEditMenu(model)))
+    ..children.addAll([
+      model.children.isEmpty
+          ? (ImageElement(src: partImg)..className = "icon")
+          : (ImageElement(src: "${discloserTriangleImg}true.png")
+            ..onClick.listen((e) {
+              childrenContainer.style.display =
+                (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+              (e.target as ImageElement).srcset = "${discloserTriangleImg}childrenDisplayed.png";
+            })
+            ..className = "icon disclosureTri"),
+      SpanElement()
+        ..className = "name"
+        ..text = model.name,
+      SpanElement()
+        ..className = "quantity"
+        ..text = model.quantity.toString(),
+      ImageElement(src: plusImg, width: 20, height: 20)
+        ..className = "new"
+        ..onClick.listen((e) {
+          modal.show(partEditMenu({"parentID": model.parentId}));
+          e.stopPropagation();
+        }),
+      (status = StatusHtml.fromId(model.statusId)).elem,
+    ]);
 }
