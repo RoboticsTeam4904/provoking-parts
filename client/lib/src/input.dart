@@ -11,6 +11,7 @@ abstract class InputField<T> {
 }
 
 class DefaultInput extends InputField<String> {
+  bool overrideDefaultValidation;
   InputElement input;
   Function(DefaultInput) customInputValidation;
 
@@ -18,8 +19,11 @@ class DefaultInput extends InputField<String> {
   String get value => input.value;
 
   DefaultInput(String type, String name,
-      {String defaultValue, this.customInputValidation})
-      : super(
+      {String defaultValue = "",
+      Function(DefaultInput) customInputValidation,
+      this.overrideDefaultValidation = false})
+      : customInputValidation = ((_) {}),
+        super(
             name,
             DivElement()
               ..children.addAll([
@@ -27,11 +31,13 @@ class DefaultInput extends InputField<String> {
                 InputElement(type: type)
                   ..value = defaultValue
                   ..name = name
-              ]));
+              ])) {
+    customInputValidation ??= (_) {};
+  }
 
   @override
   void validateInput() {
-    if (value == null || value.isEmpty)
+    if (!overrideDefaultValidation && value == null || value.isEmpty)
       throw FormatException("You must input something for $name.");
     customInputValidation(this);
   }
@@ -41,18 +47,19 @@ class EditMenu {
   DivElement elem;
   DivElement errors;
   List<InputField> fields;
+  Map<String, dynamic> defaultJson;
   Function(Map<String, dynamic> json) onComplete;
   Function() onCancel;
 
-  EditMenu(String title, this.fields, this.onComplete, {this.onCancel}) {
+  EditMenu(String title, this.fields, this.onComplete, {Function() onCancel, Map<String, dynamic> defaultJson})
+      : onCancel = onCancel ?? (() {}), defaultJson = defaultJson ?? {} {
     onCancel ??= () {};
     elem = DivElement()
       ..className = "editMenu"
       ..children.addAll([
-        SpanElement()
+        DivElement()
           ..className = "title"
           ..text = title,
-        BRElement(),
         DivElement()
           ..className = "input"
           ..children.addAll(List.generate(fields.length, (i) {
@@ -82,7 +89,7 @@ class EditMenu {
 
   Map<String, dynamic> assembleJson() {
     errors.children.clear();
-    final json = {};
+    final json = Map.from(defaultJson);
     for (final field in fields) {
       try {
         field.validateInput();

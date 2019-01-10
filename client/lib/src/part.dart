@@ -1,8 +1,9 @@
 import 'dart:html';
-import 'modal.dart';
 import 'api.dart';
-import 'status.dart';
 import 'custom_alert.dart';
+import 'input.dart';
+import 'modal.dart';
+import 'status.dart';
 
 const discloserTriangleImg = "/disctri";
 const partImg = "/part.png";
@@ -10,6 +11,7 @@ const plusImg = "/plus.png";
 const loadingAnim = "/loading.png";
 
 class PartHtml {
+  Session session;
   DivElement elem;
   PartModel model;
   Modal modal;
@@ -17,7 +19,7 @@ class PartHtml {
   StatusHtml status;
   bool childrenDisplayed = true;
 
-  PartHtml(this.model, this.modal, {bool topLevel = false}) {
+  PartHtml(this.model, this.modal, this.session, {bool topLevel = false}) {
     elem = DivElement()
       ..className = "partContainer"
       ..id = "part${model.id}"
@@ -27,21 +29,22 @@ class PartHtml {
         childrenContainer = DivElement()
           ..className = "partChildren"
           ..children.addAll(List.generate(model.children.length,
-              (i) => PartHtml(model.children[i], modal).elem))
+              (i) => PartHtml(model.children[i], modal, session).elem))
       ]);
   }
 
   DivElement isolatedPartElem() => DivElement()
     ..className = "part"
-    ..onClick.listen((_) => modal.show(partEditMenu(model)))
+    ..onClick.listen((_) => displayPartMenu())
     ..children.addAll([
       model.children.isEmpty
           ? (ImageElement(src: partImg)..className = "icon")
           : (ImageElement(src: "${discloserTriangleImg}true.png")
             ..onClick.listen((e) {
               childrenContainer.style.display =
-                (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-              (e.target as ImageElement).srcset = "${discloserTriangleImg}childrenDisplayed.png";
+                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+              (e.target as ImageElement).srcset =
+                  "$discloserTriangleImg$childrenDisplayed.png";
             })
             ..className = "icon disclosureTri"),
       SpanElement()
@@ -53,9 +56,38 @@ class PartHtml {
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
-          modal.show(partEditMenu({"parentID": model.parentId}));
+          displayPartMenu(newPart: true, defaultJson: {"parentId": model.parentId});
           e.stopPropagation();
         }),
-      (status = StatusHtml.fromId(model.statusId)).elem,
+      (status = StatusHtml.fromId(model.statusId, session)).elem,
     ]);
+
+  void displayPartMenu({bool newPart = false, Map<String, dynamic> defaultJson}) {
+    modal.show(EditMenu(
+            "Edit Part #${model.id}",
+            [
+              DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
+              DefaultInput("number", "Quantity",
+                  defaultValue: newPart ? "" : model.quantity.toString(),
+                  customInputValidation: (q) {
+                final parsed = int.tryParse(q.value);
+                if (parsed == null || parsed < 0)
+                  throw const FormatException(
+                      "You must enter a natural number");
+              }),
+              StatusDropdown(
+                  "status", session.statuses.values.map((s) => StatusHtml(s)),
+                  selectedStatus: newPart ? null : status)
+            ],
+            (json) {
+              try {
+                session.update(json, UpdateType.patch, ModelType.part);
+              } catch (e) {
+                CustomAlert(Alert.error, e.toString());
+              }
+            },
+            defaultJson: defaultJson ?? {},
+            onCancel: modal.close)
+        .elem);
+  }
 }
