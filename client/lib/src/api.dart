@@ -49,7 +49,7 @@ class Session {
 
   Session([Client client]) : client = client ?? BrowserClient();
 
-  Future<void> init() async {
+  Future<Session> init() async {
     final resp = await client.get("$endpoint/init");
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       final Map<String, List<Map<String, dynamic>>> initJson =
@@ -60,6 +60,7 @@ class Session {
         addPart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId].children?.add(part);
+      return this;
     }
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
