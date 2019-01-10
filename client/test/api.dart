@@ -1,6 +1,6 @@
 import "dart:convert";
 
-import 'package:client/client.dart';
+import "package:client/src/api.dart";
 import "package:http/testing.dart";
 import "package:test/test.dart";
 

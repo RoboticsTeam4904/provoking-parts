@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/browser_client.dart';
 import 'package:http/http.dart';
+import 'package:equatable/equatable.dart';
 
 const endpoint = "https://botprovoking.org/api";
 const clientID =
@@ -9,7 +9,9 @@ const clientID =
 enum UpdateType { delete, create, patch }
 enum ModelType { part, status }
 
-abstract class Model {}
+abstract class Model extends Equatable {
+  Model(List props) : super(props);
+}
 
 class PartModel extends Model {
   String name;
@@ -19,12 +21,11 @@ class PartModel extends Model {
   StatusModel get status => session.statuses[statusId];
 
   PartModel(this.name, this.statusId, this.id, this.quantity, this.parentId,
-      this.session);
+      this.session) : super([name, statusId, id, quantity, parentId, session]);
 
-  PartModel.fromJson(Map<String, dynamic> json, Session session) {
+  factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
     PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
-        json["parentID"], session);
-  }
+       json["parentID"], session);
 }
 
 class StatusModel extends Model {
@@ -32,11 +33,10 @@ class StatusModel extends Model {
   String label;
   int id, color;
 
-  StatusModel(this.label, this.id, this.color, this.session);
+  StatusModel(this.label, this.id, this.color, this.session) : super([label, id, color, session]);
 
-  StatusModel.fromJson(Map<String, dynamic> json, session) {
+  factory StatusModel.fromJson(Map<String, dynamic> json, session) =>
     StatusModel(json["label"], json["id"], json["color"], session);
-  }
 }
 
 class Session {
@@ -44,7 +44,7 @@ class Session {
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
 
-  Session([Client client]) : client = client ?? BrowserClient();
+  Session([Client client]) : client = client ?? Client();
 
   Future<Session> init([Client client]) async {
     Session(client);
