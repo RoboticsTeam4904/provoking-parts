@@ -43,11 +43,11 @@ class StatusModel extends Model {
 }
 
 class Session {
-  BrowserClient client = BrowserClient();
+  final Client client;
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
 
-  Session();
+  Session([this.client = BrowserClient()]);
 
   Future<void> initSession() async {
     final resp = await client.get("$endpoint/init");
