@@ -49,7 +49,8 @@ class Session {
 
   Session([Client client]) : client = client ?? BrowserClient();
 
-  Future<Session> init() async {
+  Future<Session> init([Client client]) async {
+    Session(client);
     final resp = await client.get("$endpoint/init");
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       final Map<String, List<Map<String, dynamic>>> initJson =
