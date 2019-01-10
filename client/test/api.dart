@@ -111,17 +111,21 @@ void main() {
     await session.init();
 
     expect(
-        session.parts.entries.toList(),
+        session.parts.values.toList(),
         containsAll(sessionJson["parts"]
-            .map((part) =>
-                MapEntry(part["id"] as int, PartModel.fromJson(part, session)))
+            .map((part) => PartModel.fromJson(part, session))
             .toList()));
     expect(
-        session.statuses.entries.toList(),
+        session.statuses.values.toList(),
         containsAll(sessionJson["statuses"]
-            .map((status) => MapEntry(
-                status["id"] as int, StatusModel.fromJson(status, session)))
+            .map((status) => StatusModel.fromJson(status, session))
             .toList()));
+
+    session.parts.entries
+        .forEach((entry) => expect(entry.key, equals(entry.value.id)));
+    
+    session.statuses.entries
+        .forEach((entry) => expect(entry.key, equals(entry.value.id)));
 
     session.parts.values.forEach(
         (part) => expect(part, isIn(session.parts[part.parentId].children)));
