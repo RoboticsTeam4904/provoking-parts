@@ -64,7 +64,7 @@ class StatusDropdown extends InputField<int> {
       this.selectedElement)
       : super(name, elem) {
     selectedContainer.onClick.listen((_) =>
-      optionsContainer.style.display = (optionsContainer.style.display == "none") ? "" : "none";
+      optionsContainer.style.display = (optionsContainer.style.display == "none") ? "" : "none"
     );
     optionsContainer.children
         .addAll(options = List.generate(statuses.length, (i) {
