@@ -47,7 +47,7 @@ class Session {
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
 
-  Session([this.client = BrowserClient()]);
+  Session([Client client]) : client = client ?? BrowserClient();
 
   Future<void> initSession() async {
     final resp = await client.get("$endpoint/init");
