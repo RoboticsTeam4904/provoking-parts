@@ -16,24 +16,26 @@ class PartHtml {
   PartModel model;
   Modal modal;
   DivElement childrenContainer;
-  StatusHtml status;
+  StatusDropdown status;
   bool childrenDisplayed = true;
 
   PartHtml(this.model, this.modal, this.session, {bool topLevel = false}) {
-    elem = DivElement()
-      ..className = "partContainer"
-      ..id = "part${model.id}"
-      ..style.paddingLeft = "${topLevel ? 0 : 20}px"
-      ..children.addAll([
-        isolatedPartElem(),
-        childrenContainer = DivElement()
-          ..className = "partChildren"
-          ..children.addAll(List.generate(model.children.length,
-              (i) => PartHtml(model.children[i], modal, session).elem))
-      ]);
+    fullElem(topLevel);
   }
 
-  DivElement isolatedPartElem() => DivElement()
+  DivElement fullElem(bool topLevel) => elem = DivElement()
+    ..className = "partContainer"
+    ..id = "part${model.id}"
+    ..style.paddingLeft = "${topLevel ? 0 : 20}px"
+    ..children.addAll([
+      isolatedElem(),
+      childrenContainer = DivElement()
+        ..className = "partChildren"
+        ..children.addAll(List.generate(model.children.length,
+            (i) => PartHtml(model.children[i], modal, session).elem))
+    ]);
+
+  DivElement isolatedElem() => DivElement()
     ..className = "part"
     ..onClick.listen((_) => displayPartMenu())
     ..children.addAll([
@@ -56,38 +58,40 @@ class PartHtml {
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
-          displayPartMenu(newPart: true, defaultJson: {"parentId": model.parentId});
+          displayPartMenu(
+              newPart: true, defaultJson: {"parentId": model.parentId});
           e.stopPropagation();
         }),
-      (status = StatusHtml.fromId(model.statusId, session)).elem,
+      (status = StatusDropdown(
+              "status", session.statuses.values.map((s) => StatusHtml(s)),
+              selectedStatus: StatusHtml.fromId(model.statusId, session)))
+          .elem,
     ]);
 
-  void displayPartMenu({bool newPart = false, Map<String, dynamic> defaultJson}) {
-    modal.show(EditMenu(
-            "Edit Part #${model.id}",
-            [
-              DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
-              DefaultInput("number", "Quantity",
-                  defaultValue: newPart ? "" : model.quantity.toString(),
-                  customInputValidation: (q) {
-                final parsed = int.tryParse(q.value);
-                if (parsed == null || parsed < 0)
-                  throw const FormatException(
-                      "You must enter a natural number");
-              }),
-              StatusDropdown(
-                  "status", session.statuses.values.map((s) => StatusHtml(s)),
-                  selectedStatus: newPart ? null : status)
-            ],
-            (json) {
-              try {
-                session.update(json, UpdateType.patch, ModelType.part);
-              } catch (e) {
-                CustomAlert(Alert.error, e.toString());
-              }
-            },
-            defaultJson: defaultJson ?? {},
-            onCancel: modal.close)
+  void displayPartMenu(
+      {bool newPart = false, Map<String, dynamic> defaultJson}) {
+    modal.show(EditMenu("Edit Part #${model.id}", [
+      DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
+      DefaultInput("number", "Quantity",
+          defaultValue: newPart ? "" : model.quantity.toString(),
+          customInputValidation: (q) {
+        final parsed = int.tryParse(q.value);
+        if (parsed == null || parsed < 0)
+          throw const FormatException("You must enter a natural number");
+      }),
+      StatusDropdown(
+          "status", session.statuses.values.map((s) => StatusHtml(s)),
+          selectedStatus:
+              newPart ? null : StatusHtml.fromId(status.value, session))
+    ], (json) {
+      try {
+        session.update(json, UpdateType.patch, ModelType.part);
+      } catch (e) {
+        CustomAlert(Alert.error, e.toString());
+      }
+    }, defaultJson: defaultJson ?? {}, onCancel: modal.close)
         .elem);
   }
+
+  void update() => elem.children.first = isolatedElem();
 }
