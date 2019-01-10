@@ -46,18 +46,17 @@ class Session {
 
   Session([Client client]) : client = client ?? Client();
 
-  Future<Session> init([Client client]) async {
-    Session(client);
+  Future<Session> init() async {
     final resp = await client.get("$endpoint/init");
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      final Map<String, List<Map<String, dynamic>>> initJson =
+      final Map<String, dynamic> initJson =
           jsonDecode(resp.body);
       for (Map<String, dynamic> statusJson in initJson["statuses"])
         addStatus(StatusModel.fromJson(statusJson, this));
       for (Map<String, dynamic> partJson in initJson["parts"])
         addPart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
-        parts[part.parentId].children?.add(part);
+        parts[part.parentId]?.children?.add(part);
       return this;
     }
     throw Exception("${resp.statusCode}: ${resp.body}");

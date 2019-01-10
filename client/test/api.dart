@@ -59,11 +59,11 @@ final updatesJson = [
 
 void main() {
   final client = MockClient((request) async {
-    if (request.url.path == "api/init") {
+    if (request.url.path == "/api/init") {
       return respond(request, 200, body: jsonEncode(sessionJson));
     }
 
-    if (request.url.path == "api/updates") {
+    if (request.url.path == "/api/updates") {
       final body = StringBuffer()
         ..writeln()
         ..writeln(jsonEncode(updatesJson[0]))
@@ -103,21 +103,25 @@ void main() {
 
     expect(
         serializedStatuses,
-        orderedEquals(statuses.map(
-            (status) => StatusModel(status["label"], status["id"], status["color"], session))));
+        orderedEquals(statuses.map((status) => StatusModel(
+            status["label"], status["id"], status["color"], session))));
   });
 
   test("initializes a session", () async {
     await session.init();
 
     expect(
-        session.parts.entries,
-        containsAll(sessionJson["parts"].map((part) =>
-            MapEntry(part["id"], PartModel.fromJson(part, session)))));
+        session.parts.entries.toList(),
+        containsAll(sessionJson["parts"]
+            .map((part) =>
+                MapEntry(part["id"] as int, PartModel.fromJson(part, session)))
+            .toList()));
     expect(
-        session.statuses.entries,
-        containsAll(sessionJson["statuses"].map((status) =>
-            MapEntry(status["id"], StatusModel.fromJson(status, session)))));
+        session.statuses.entries.toList(),
+        containsAll(sessionJson["statuses"]
+            .map((status) => MapEntry(
+                status["id"] as int, StatusModel.fromJson(status, session)))
+            .toList()));
 
     session.parts.values.forEach(
         (part) => expect(part, isIn(session.parts[part.parentId].children)));
