@@ -104,11 +104,11 @@ void main() {
     expect(
         serializedStatuses,
         orderedEquals(statuses.map(
-            (status) => StatusModel(status["label"], status["id"], session))));
+            (status) => StatusModel(status["label"], status["id"], status["color"], session))));
   });
 
   test("initializes a session", () async {
-    await session.initSession();
+    await session.init();
 
     expect(
         session.parts.entries,
