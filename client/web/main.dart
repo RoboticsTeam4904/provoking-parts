@@ -19,7 +19,7 @@ Future<void> main() async {
     final dummyPart =
         PartHtml(PartModel(null, null, null, 0, null, session), modal, session, debug: true);
     document.querySelector("#newTopLevelPart").onClick.listen((_) {
-      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
+      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentID": null});
     });
   } catch (e) {
     CustomAlert(Alert.error, "Dummy part error: $e");
@@ -33,23 +33,23 @@ Future<void> main() async {
     await for (final update in updateStream) {
       if (update["model"] == "Part") {
         if (update["new"] == null) {
-          final oldId = update["old"]["id"];
-          htmlParts.remove(oldId);
-          partsContainer.querySelector("#part$oldId").remove();
+          final oldID = update["old"]["id"];
+          htmlParts.remove(oldID);
+          partsContainer.querySelector("#part$oldID").remove();
         } else {
           if (update["old"] == null) {
             final newPart =
                 PartHtml(session.parts[update["new"]["id"]], modal, session);
             htmlParts[newPart.model.id] = newPart;
-            htmlParts[newPart.model.parentId]
+            htmlParts[newPart.model.parentID]
                 .childrenContainer
                 .children
                 .add(newPart.elem);
           } else {
             final newPart = htmlParts[update["new"]["id"]]..update();
-            if (update["old"]["parentId"] != update["new"]["parentId"]) {
+            if (update["old"]["parentID"] != update["new"]["parentID"]) {
               newPart.elem.remove();
-              htmlParts[newPart.model.parentId]
+              htmlParts[newPart.model.parentID]
                   .childrenContainer
                   .children
                   .add(newPart.elem);
@@ -66,7 +66,7 @@ Future<void> main() async {
         } else
           for (final part in htmlParts.values)
             part.status
-                .addOption(StatusHtml.fromId(update["new"]["id"], session));
+                .addOption(StatusHtml.fromID(update["new"]["id"], session));
       }
     }
   } catch (e) {

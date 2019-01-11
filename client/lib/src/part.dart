@@ -63,7 +63,7 @@ class PartHtml {
           ..onClick.listen((e) {
             try {
             displayPartMenu(
-                newPart: true, defaultJson: {"parentId": model.parentId});
+                newPart: true, defaultJson: {"parentID": model.parentID});
             } catch (ex) {
               CustomAlert(Alert.error, ex.toString());
             }
@@ -71,7 +71,7 @@ class PartHtml {
           }),
         (status = StatusDropdown("status",
                 session.statuses.values.map((s) => StatusHtml(s)).toList(),
-                selectedStatus: StatusHtml.fromId(model.statusId, session)))
+                selectedStatus: StatusHtml.fromID(model.statusID, session)))
             .elem,
       ]);
 
@@ -89,7 +89,7 @@ class PartHtml {
       StatusDropdown(
           "status", session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
-              newPart ? null : StatusHtml.fromId(status.value, session))
+              newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) {
       try {
         session.update(PartModel.fromJson(json, session), UpdateType.patch);

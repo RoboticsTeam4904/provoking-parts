@@ -13,7 +13,7 @@ class StatusHtml {
     statusElem();
   }
 
-  factory StatusHtml.fromId(int id, Session session) =>
+  factory StatusHtml.fromID(int id, Session session) =>
       StatusHtml(session.statuses[id]);
 
   DivElement statusElem() => elem = DivElement()
@@ -46,9 +46,9 @@ class StatusDropdown extends InputField<int> {
   DivElement selectedContainer;
   Element selectedElement;
   Function(int id) onChange;
-  int selectedId;
+  int selectedID;
   @override
-  int get value => selectedId;
+  int get value => selectedID;
 
   factory StatusDropdown(String name, List<StatusHtml> statuses,
       {StatusHtml selectedStatus, Function(int id) onChange}) {
@@ -104,12 +104,12 @@ class StatusDropdown extends InputField<int> {
       selectedContainer.children = [SpanElement()..text = "Choose..."];
   }
 
-  void select(Element newSelectedElement, int newSelectedId) {
-    selectedId = newSelectedId;
+  void select(Element newSelectedElement, int newSelectedID) {
+    selectedID = newSelectedID;
     selectedElement?.style?.display = "";
     selectedContainer.children = [newSelectedElement.clone(true)];
     selectedElement = newSelectedElement..style.display = "none";
-    onChange(newSelectedId);
+    onChange(newSelectedID);
   }
 
   void addOption(StatusHtml newOption) {
@@ -120,7 +120,7 @@ class StatusDropdown extends InputField<int> {
 
   @override
   void validateInput() {
-    if (selectedId == null)
+    if (selectedID == null)
       throw const FormatException("You must select a valid status.");
   }
 }

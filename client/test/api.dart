@@ -81,7 +81,7 @@ void main() {
       return makeMockClientUpdateResponse(
           request,
           int.tryParse(request.url.path.substring(partsEndpoint.length)),
-          Set.from(["id", "parentId", "name", "quantity", "statusId"]),
+          Set.from(["id", "parentID", "name", "quantity", "statusID"]),
           sessionJson["parts"]);
 
     const statusesEndpoint = "/api/statuses/";
@@ -144,8 +144,8 @@ void main() {
     session.statuses.entries
         .forEach((entry) => expect(entry.key, equals(entry.value.id)));
 
-    session.parts.values.where((p) => p.parentId != null).forEach(
-        (part) => expect(part, isIn(session.parts[part.parentId].children)));
+    session.parts.values.where((p) => p.parentID != null).forEach(
+        (part) => expect(part, isIn(session.parts[part.parentID].children)));
   });
 
   test("correctly receives and applies updates", () async {
