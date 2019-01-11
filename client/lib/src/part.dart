@@ -20,7 +20,8 @@ class PartHtml {
   bool childrenDisplayed = true;
   bool debug;
 
-  PartHtml(this.model, this.modal, this.session, {bool topLevel = false, this.debug = false}) {
+  PartHtml(this.model, this.modal, this.session,
+      {bool topLevel = false, this.debug = false}) {
     if (debug) return;
     fullElem(topLevel);
   }
@@ -37,43 +38,38 @@ class PartHtml {
             .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
     ]);
 
-  DivElement isolatedElem() =>
-    DivElement()
-      ..className = "part"
-      ..onClick.listen((_) => displayPartMenu())
-      ..children.addAll([
-        model.children.isEmpty
-            ? (ImageElement(src: partImg)..className = "icon")
-            : (ImageElement(src: "${discloserTriangleImg}true.png")
-              ..onClick.listen((e) {
-                childrenContainer.style.display =
-                    (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-                (e.target as ImageElement).srcset =
-                    "$discloserTriangleImg$childrenDisplayed.png";
-              })
-              ..className = "icon disclosureTri"),
-        SpanElement()
-          ..className = "name"
-          ..text = model.name,
-        SpanElement()
-          ..className = "quantity"
-          ..text = model.quantity.toString(),
-        ImageElement(src: plusImg, width: 20, height: 20)
-          ..className = "new"
-          ..onClick.listen((e) {
-            try {
-            displayPartMenu(
-                newPart: true, defaultJson: {"parentID": model.parentID});
-            } catch (ex) {
-              CustomAlert(Alert.error, ex.toString());
-            }
-            e.stopPropagation();
-          }),
-        (status = StatusDropdown("status",
-                session.statuses.values.map((s) => StatusHtml(s)).toList(),
-                selectedStatus: StatusHtml.fromID(model.statusID, session)))
-            .elem,
-      ]);
+  DivElement isolatedElem() => DivElement()
+    ..className = "part"
+    ..onClick.listen((_) => displayPartMenu())
+    ..children.addAll([
+      model.children.isEmpty
+          ? (ImageElement(src: partImg)..className = "icon")
+          : (ImageElement(src: "${discloserTriangleImg}true.png")
+            ..onClick.listen((e) {
+              childrenContainer.style.display =
+                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+              (e.target as ImageElement).srcset =
+                  "$discloserTriangleImg$childrenDisplayed.png";
+            })
+            ..className = "icon disclosureTri"),
+      SpanElement()
+        ..className = "name"
+        ..text = model.name,
+      SpanElement()
+        ..className = "quantity"
+        ..text = model.quantity.toString(),
+      ImageElement(src: plusImg, width: 20, height: 20)
+        ..className = "new"
+        ..onClick.listen((e) {
+          displayPartMenu(
+              newPart: true, defaultJson: {"parentID": model.parentID});
+          e.stopPropagation();
+        }),
+      (status = StatusDropdown("status",
+              session.statuses.values.map((s) => StatusHtml(s)).toList(),
+              selectedStatus: StatusHtml.fromID(model.statusID, session)))
+          .elem,
+    ]);
 
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {
