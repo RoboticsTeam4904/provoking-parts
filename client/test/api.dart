@@ -1,6 +1,7 @@
 import "dart:convert";
 
 import "package:client/src/api.dart";
+import "package:http/src/response.dart";
 import "package:http/testing.dart";
 import "package:test/test.dart";
 
@@ -26,7 +27,8 @@ const sessionJson = {
   ],
   "statuses": [
     {"id": 0, "label": "Complete", "color": 0x0fff0f},
-    {"id": 1, "label": "Work in progress", "color": 0x0f0fff}
+    {"id": 1, "label": "Work in progress", "color": 0x0f0fff},
+    {"id": 2, "label": "Please help me", "color": 0xffffff}
   ]
 };
 
@@ -76,34 +78,18 @@ void main() {
     }
 
     const partsEndpoint = "/api/parts/";
-    if (request.url.path.startsWith(partsEndpoint)) {
-      final id = int.parse(request.url.path.substring(partsEndpoint.length));
-      if (request.method.toLowerCase() == "delete") {
-        if (!sessionJson.containsKey(id))
-          return respond(request, 400,
-              body: "Request to delete part that does not exist");
-        if (request.body.isEmpty)
-          return respond(request, 200);
-        else
-          return respond(request, 400,
-              body: "Request to delete part $id had non-empty body");
-      } else if (request.method.toLowerCase() == "patch") {
-        if (!sessionJson.containsKey(id))
-          return respond(request, 400,
-              body: "Request to change part that does not exist");
-        try {
-          final json = jsonDecode(request.body);
-          if (json["id"] != id)
-            return respond(request, 400,
-                body: "Request json id did not correspond with endpoint");
-        } on FormatException {
-          return respond(request, 400,
-              body: "Request body did not contain valid update json");
-        }
-      } else {}
-    }
+    if (request.url.path.startsWith(partsEndpoint))
+      return makeMockClientUpdateResponse(
+          request,
+          int.parse(request.url.path.substring(partsEndpoint.length)),
+          ["id", "parentId", "name", "quantity", "statusId"]);
 
-    if (request.url.path.startsWith("/api/statuses/")) {}
+    const statusesEndpoint = "/api/statuses/";
+    if (request.url.path.startsWith(statusesEndpoint))
+      return makeMockClientUpdateResponse(
+          request,
+          int.parse(request.url.path.substring(statusesEndpoint.length)),
+          ["id", "label", "color"]);
 
     return respond(request, 404);
   });
@@ -171,5 +157,49 @@ void main() {
         contains(StatusModel.fromJson(updatesJson[1]["new"], session)));
   });
 
-  test("correctly formats and sends updates", () async {});
+  test("correctly formats and sends updates", () async {
+    await session.update(PartModel.fromJson(sessionJson["parts"][0], session), UpdateType.delete);
+    await session.update(PartModel.fromJson(sessionJson["parts"][1], session), UpdateType.create);
+    await session.update(PartModel.fromJson(sessionJson["parts"][2], session), UpdateType.patch);
+
+    await session.update(PartModel.fromJson(sessionJson["statuses"][0], session), UpdateType.delete);
+    await session.update(PartModel.fromJson(sessionJson["statuses"][1], session), UpdateType.create);
+    await session.update(PartModel.fromJson(sessionJson["statuses"][2], session), UpdateType.patch);
+  });
+}
+
+Response makeMockClientUpdateResponse(
+    request, id, List<String> requiredFields) {
+  if (request.method.toLowerCase() == "delete") {
+    if (!sessionJson.containsKey(id))
+      return respond(request, 400,
+          body: "Request to delete part that does not exist");
+    if (request.body.isEmpty)
+      return respond(request, 200);
+    else
+      return respond(request, 400,
+          body: "Request to delete part $id had non-empty body");
+  } else {
+    Map<String, dynamic> json;
+    try {
+      json = jsonDecode(request.body);
+      if (json["id"] != id)
+        return respond(request, 400,
+            body: "Request json id did not correspond with endpoint");
+    } on FormatException {
+      return respond(request, 400,
+          body: "Request body did not contain valid update json");
+    }
+    if (json.keys.where((s) => requiredFields.contains(s)).length ==
+        json.keys.length)
+      return respond(request, 400,
+          body: "Request body did not contain all required fields");
+    if (request.method.toLowerCase() == "post" && sessionJson.containsKey(id))
+      return respond(request, 400,
+          body: "Request to make part that already exists");
+    if (request.method.toLowerCase() == "patch" && !sessionJson.containsKey(id))
+      return respond(request, 400,
+          body: "Request to change part that does not exist");
+  }
+  return respond(request, 200);
 }
