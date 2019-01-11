@@ -83,20 +83,20 @@ class StatusDropdown extends InputField<int> {
       this.selectedContainer,
       this.selectedElement)
       : super(name, elem) {
-    elem.onClick
-      ..listen((e) {
-        optionsContainer.style.display = (optionsDisplayed  = !optionsDisplayed) ? "" : "none";
-        e.stopPropagation();
-      });
+    elem.onClick.listen((e) {
+      optionsContainer.style.display =
+          (optionsDisplayed = !optionsDisplayed) ? "" : "none";
+      e.stopPropagation();
+    });
     optionsContainer
       ..style.display = "none"
       ..children.addAll(List.generate(statuses.length, (i) {
         final status = statuses[i];
-        final Element elem = statuses[i].elem.clone(true);
+        final Element optionElem = statuses[i].elem.clone(true);
         if (status.model.id == selectedStatus?.model?.id)
-          selectedElement = elem;
-        elem.onClick.listen((_) => select(elem, status.model.id));
-        return elem;
+          selectedElement = optionElem;
+        optionElem.onClick.listen((_) => select(optionElem, status.model.id));
+        return optionElem;
       }));
     if (selectedStatus != null)
       select(selectedElement, selectedStatus.model.id);

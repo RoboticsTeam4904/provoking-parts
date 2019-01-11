@@ -23,7 +23,7 @@ class DefaultInput extends InputField<String> {
       {String defaultValue = "",
       Function(DefaultInput) customInputValidation,
       this.overrideDefaultValidation = false})
-      : customInputValidation = ((_) {}),
+      : customInputValidation = customInputValidation ?? ((_) {}),
         super(
             name,
             DivElement()
@@ -33,12 +33,12 @@ class DefaultInput extends InputField<String> {
                   ..value = defaultValue
                   ..name = name
               ])) {
-    customInputValidation ??= (_) {};
+    input = elem.lastChild;
   }
 
   @override
   void validateInput() {
-    if (!overrideDefaultValidation && value == null || value.isEmpty)
+    if (!overrideDefaultValidation && (value == null || value.isEmpty))
       throw FormatException("You must input something for $name.");
     customInputValidation(this);
   }
@@ -87,12 +87,12 @@ class EditMenu {
 
   Map<String, dynamic> assembleJson() {
     errors.children.clear();
-    final json = Map.from(defaultJson);
+    final json = Map<String, dynamic>.from(defaultJson);
     for (final field in fields) {
       try {
         field.validateInput();
       } on FormatException catch (e) {
-        errors.children.add(DivElement()..text = e.toString());
+        errors.children.add(DivElement()..text = e.message);
       }
       json[field.name] = field.value;
     }
