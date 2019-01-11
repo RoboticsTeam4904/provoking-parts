@@ -31,42 +31,44 @@ class PartHtml {
       isolatedElem(),
       childrenContainer = DivElement()
         ..className = "partChildren"
-        ..children.addAll(List.generate(model.children.length,
-            (i) => PartHtml(model.children[i], modal, session).elem))
+        ..children
+            .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
     ]);
 
-  DivElement isolatedElem() => DivElement()
-    ..className = "part"
-    ..onClick.listen((_) => displayPartMenu())
-    ..children.addAll([
-      model.children.isEmpty
-          ? (ImageElement(src: partImg)..className = "icon")
-          : (ImageElement(src: "${discloserTriangleImg}true.png")
-            ..onClick.listen((e) {
-              childrenContainer.style.display =
-                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-              (e.target as ImageElement).srcset =
-                  "$discloserTriangleImg$childrenDisplayed.png";
-            })
-            ..className = "icon disclosureTri"),
-      SpanElement()
-        ..className = "name"
-        ..text = model.name,
-      SpanElement()
-        ..className = "quantity"
-        ..text = model.quantity.toString(),
-      ImageElement(src: plusImg, width: 20, height: 20)
-        ..className = "new"
-        ..onClick.listen((e) {
-          displayPartMenu(
-              newPart: true, defaultJson: {"parentId": model.parentId});
-          e.stopPropagation();
-        }),
-      (status = StatusDropdown(
-              "status", session.statuses.values.map((s) => StatusHtml(s)),
-              selectedStatus: StatusHtml.fromId(model.statusId, session)))
-          .elem,
-    ]);
+  DivElement isolatedElem() {
+    return DivElement()
+      ..className = "part"
+      ..onClick.listen((_) => displayPartMenu())
+      ..children.addAll([
+        model.children.isEmpty
+            ? (ImageElement(src: partImg)..className = "icon")
+            : (ImageElement(src: "${discloserTriangleImg}true.png")
+              ..onClick.listen((e) {
+                childrenContainer.style.display =
+                    (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+                (e.target as ImageElement).srcset =
+                    "$discloserTriangleImg$childrenDisplayed.png";
+              })
+              ..className = "icon disclosureTri"),
+        SpanElement()
+          ..className = "name"
+          ..text = model.name,
+        SpanElement()
+          ..className = "quantity"
+          ..text = model.quantity.toString(),
+        ImageElement(src: plusImg, width: 20, height: 20)
+          ..className = "new"
+          ..onClick.listen((e) {
+            displayPartMenu(
+                newPart: true, defaultJson: {"parentId": model.parentId});
+            e.stopPropagation();
+          }),
+        (status = StatusDropdown("status",
+                session.statuses.values.map((s) => StatusHtml(s)).toList(),
+                selectedStatus: StatusHtml.fromId(model.statusId, session)))
+            .elem,
+      ]);
+  }
 
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {
@@ -80,7 +82,7 @@ class PartHtml {
           throw const FormatException("You must enter a natural number");
       }),
       StatusDropdown(
-          "status", session.statuses.values.map((s) => StatusHtml(s)),
+          "status", session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
               newPart ? null : StatusHtml.fromId(status.value, session))
     ], (json) {

@@ -3,9 +3,25 @@ import 'dart:html';
 import 'package:client/client.dart';
 
 void main() async {
+  final modalTest = Modal(
+      document.querySelector("#modal"), document.querySelector("#screenCover"));
+  final sessionTest = Session()
+    ..statuses = {}
+    ..parts = {};
+  final testStatusModel = StatusModel("oh noes", 0, 0, sessionTest);
+  sessionTest.updateStatus(testStatusModel);
+  final testPartModel = PartModel("Hello", 0, 0, 1, null, sessionTest);
+  sessionTest
+    ..updatePart(testPartModel)
+    ..updateStatus(StatusModel("Hi", 1, 0, sessionTest));
+  document.body.children
+      .add(PartHtml(testPartModel, modalTest, sessionTest).elem);
+  return;
+
   Session session;
   try {
-    session = await Session()..init();
+    session = await Session()
+      ..init();
   } on StateError {
     // Redirect to authentication
     window.location.pathname = "/google";
@@ -15,7 +31,8 @@ void main() async {
   }
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
-  final dummyPart = PartHtml(PartModel("", null, null, 0, null, session), modal, session);
+  final dummyPart =
+      PartHtml(PartModel("", null, null, 0, null, session), modal, session);
   document.querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
   });

@@ -52,8 +52,10 @@ class EditMenu {
   Function(Map<String, dynamic> json) onComplete;
   Function() onCancel;
 
-  EditMenu(String title, this.fields, this.onComplete, {Function() onCancel, Map<String, dynamic> defaultJson})
-      : onCancel = onCancel ?? (() {}), defaultJson = defaultJson ?? {} {
+  EditMenu(String title, this.fields, this.onComplete,
+      {Function() onCancel, Map<String, dynamic> defaultJson})
+      : onCancel = onCancel ?? (() {}),
+        defaultJson = defaultJson ?? {} {
     onCancel ??= () {};
     elem = DivElement()
       ..className = "editMenu"
@@ -62,12 +64,8 @@ class EditMenu {
           ..className = "title"
           ..text = title,
         DivElement()
-          ..className = "input"
-          ..children.addAll(List.generate(fields.length, (i) {
-            final field = fields[i];
-            return DivElement()
-              ..children.addAll([SpanElement()..text = field.name, field.elem]);
-          })),
+          ..className = "inputs"
+          ..children.addAll(fields.map((f) => f.elem)),
         errors = DivElement()..className = "errors",
         DivElement()
           ..className = "end"

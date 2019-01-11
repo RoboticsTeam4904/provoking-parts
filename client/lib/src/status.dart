@@ -13,9 +13,8 @@ class StatusHtml {
     statusElem();
   }
 
-  StatusHtml.fromId(int id, Session session) {
-    StatusHtml(session.statuses[id]);
-  }
+  factory StatusHtml.fromId(int id, Session session) =>
+      StatusHtml(session.statuses[id]);
 
   DivElement statusElem() => elem = DivElement()
     ..className = "status"
@@ -42,6 +41,7 @@ class StatusHtml {
 }
 
 class StatusDropdown extends InputField<int> {
+  bool optionsDisplayed = false;
   DivElement optionsContainer;
   DivElement selectedContainer;
   Element selectedElement;
@@ -67,7 +67,7 @@ class StatusDropdown extends InputField<int> {
         elem,
         selectedStatus,
         statuses,
-        onChange ?? () {},
+        onChange ?? (_) {},
         optionsContainer,
         selectedContainer,
         selectedElement);
@@ -83,15 +83,21 @@ class StatusDropdown extends InputField<int> {
       this.selectedContainer,
       this.selectedElement)
       : super(name, elem) {
-    selectedContainer.onClick.listen((_) => optionsContainer.style.display =
-        (optionsContainer.style.display == "none") ? "" : "none");
-    optionsContainer.children.addAll(List.generate(statuses.length, (i) {
-      final status = statuses[i];
-      final Element elem = statuses[i].elem.clone(true);
-      if (status == selectedStatus) selectedElement = elem;
-      elem.onClick.listen((_) => select(elem, status.model.id));
-      return elem;
-    }));
+    elem.onClick
+      ..listen((e) {
+        optionsContainer.style.display = (optionsDisplayed  = !optionsDisplayed) ? "" : "none";
+        e.stopPropagation();
+      });
+    optionsContainer
+      ..style.display = "none"
+      ..children.addAll(List.generate(statuses.length, (i) {
+        final status = statuses[i];
+        final Element elem = statuses[i].elem.clone(true);
+        if (status.model.id == selectedStatus?.model?.id)
+          selectedElement = elem;
+        elem.onClick.listen((_) => select(elem, status.model.id));
+        return elem;
+      }));
     if (selectedStatus != null)
       select(selectedElement, selectedStatus.model.id);
     else
