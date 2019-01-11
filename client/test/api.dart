@@ -166,10 +166,12 @@ void main() {
     await session.update(
         PartModel("test", 0, null, 1, null, session), UpdateType.create);
 
-    await session.update(StatusModel.fromJson(sessionJson["statuses"][0], session),
+    await session.update(
+        StatusModel.fromJson(sessionJson["statuses"][0], session),
         UpdateType.delete);
     await session.update(
-        StatusModel.fromJson(sessionJson["statuses"][1], session), UpdateType.patch);
+        StatusModel.fromJson(sessionJson["statuses"][1], session),
+        UpdateType.patch);
     await session.update(
         StatusModel("test", null, 0xffffff, session), UpdateType.create);
   });
@@ -194,16 +196,16 @@ Response makeMockClientUpdateResponse(request, int id,
       return respond(request, 400,
           body: "$id: Request body did not contain valid update json");
     }
-    final requestFields = Set.from(json.keys);
-    if (!requestFields.containsAll(requiredFields))
-      return respond(request, 400,
-          body:
-              "$id: Request body did not contain the following required fields: ${requestFields.difference(requiredFields)}, ${json}");
-
     if (request.method.toLowerCase() == "post" && json["id"] != null)
       return respond(request, 400,
           body: "Requests to make parts must have no id");
     if (request.method.toLowerCase() == "patch") {
+      final requestFields = Set.from(json.keys);
+      if (!requestFields.containsAll(requiredFields))
+        return respond(request, 400,
+            body:
+                "$id: Request body did not contain the following required fields: ${requestFields.difference(requiredFields)}, ${json}");
+
       if (json["id"] != id)
         return respond(request, 400,
             body: "$id: Requests id must corrospond with endpoint id");
