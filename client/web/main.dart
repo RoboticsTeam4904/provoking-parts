@@ -11,7 +11,7 @@ Future<void> main() async {
     window.location.pathname = "/google";
     return;
   } catch (e) {
-    CustomAlert(Alert.error, e.toString());
+    CustomAlert(Alert.error, "Init error: $e");
   }
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
@@ -22,7 +22,7 @@ Future<void> main() async {
       dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
     });
   } catch (e) {
-    CustomAlert(Alert.error, e.toString());
+    CustomAlert(Alert.error, "Dummy part error: $e");
   }
   final htmlParts =
       session.parts.map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
