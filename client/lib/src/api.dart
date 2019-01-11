@@ -27,6 +27,7 @@ class PartModel extends Model {
   int quantity, parentId, statusId;
   StatusModel get status => session.statuses[statusId];
 
+  @override
   String get endpoint => "parts";
 
   PartModel(this.name, this.statusId, this.id, this.quantity, this.parentId,
@@ -54,6 +55,7 @@ class StatusModel extends Model {
   String label;
   int color;
 
+  @override
   String get endpoint => "statuses";
 
   StatusModel(this.label, this.id, this.color, this.session)
@@ -98,17 +100,16 @@ class Session {
 
   Future<void> update(Model model, UpdateType updateType) async {
     final url = "$endpoint/${model.endpoint}/${model.id ?? ""}";
-
     Response resp;
     switch (updateType) {
       case UpdateType.delete:
         resp = await client.delete(url);
         break;
       case UpdateType.patch:
-        resp = await client.patch(url, body: json);
+        resp = await client.patch(url, body: model.json());
         break;
       case UpdateType.create:
-        resp = await client.post(url, body: json);
+        resp = await client.post(url, body: model.json());
         break;
       default:
         throw UnimplementedError("Something really bad hapenned :(");
