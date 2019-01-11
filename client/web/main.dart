@@ -3,17 +3,6 @@ import 'dart:html';
 import 'package:client/client.dart';
 
 Future<void> main() async {
-  final sessionTest = Session();
-  final modalTest = Modal(
-      document.querySelector("#modal"), document.querySelector("#screenCover"));
-  final dummyPart =
-        PartHtml(PartModel(null, null, null, 0, null, sessionTest), modalTest, sessionTest, debug: true);
-    document.querySelector("#newTopLevelPart").onClick.listen((_) {
-      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
-      document.querySelector(".cancel").onClick.listen((_) => modalTest.close());
-    });
-  return;
-
   final session = Session();
   try {
     await session.init();
