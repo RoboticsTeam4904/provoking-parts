@@ -19,7 +19,8 @@ class PartHtml {
   StatusDropdown status;
   bool childrenDisplayed = true;
 
-  PartHtml(this.model, this.modal, this.session, {bool topLevel = false}) {
+  PartHtml(this.model, this.modal, this.session, {bool topLevel = false, bool debug = false}) {
+    if (debug) return;
     fullElem(topLevel);
   }
 

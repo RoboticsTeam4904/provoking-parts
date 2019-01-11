@@ -17,10 +17,10 @@ Future<void> main() async {
       document.querySelector("#modal"), document.querySelector("#screenCover"));
   try {
     final dummyPart =
-        PartHtml(PartModel("", null, null, 0, null, session), modal, session);
-    // document.querySelector("#newTopLevelPart").onClick.listen((_) {
-    //   dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
-    // });
+        PartHtml(PartModel(null, null, null, 0, null, session), modal, session, debug: true);
+    document.querySelector("#newTopLevelPart").onClick.listen((_) {
+      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
+    });
   } catch (e) {
     CustomAlert(Alert.error, "Dummy part error: $e");
   }
