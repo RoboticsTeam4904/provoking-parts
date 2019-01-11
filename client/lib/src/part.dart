@@ -85,7 +85,7 @@ class PartHtml {
               newPart ? null : StatusHtml.fromId(status.value, session))
     ], (json) {
       try {
-        session.update(json, UpdateType.patch, ModelType.part);
+        session.update(PartModel.fromJson(json, session), UpdateType.patch);
       } catch (e) {
         CustomAlert(Alert.error, e.toString());
       }

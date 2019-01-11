@@ -7,9 +7,11 @@ const endpoint = "https://botprovoking.org/api";
 const clientID =
     "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
 enum UpdateType { delete, create, patch }
-enum ModelType { part, status }
 
 abstract class Model extends Equatable {
+  int get id;
+  String get endpoint;
+
   Model(List props) : super(props);
 }
 
@@ -20,12 +22,15 @@ class PartModel extends Model {
   int id, quantity, parentId, statusId;
   StatusModel get status => session.statuses[statusId];
 
+  String get endpoint => "parts";
+
   PartModel(this.name, this.statusId, this.id, this.quantity, this.parentId,
-      this.session) : super([name, statusId, id, quantity, parentId, session]);
+      this.session)
+      : super([name, statusId, id, quantity, parentId, session]);
 
   factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
-    PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
-       json["parentID"], session);
+      PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
+          json["parentID"], session);
 }
 
 class StatusModel extends Model {
@@ -33,10 +38,13 @@ class StatusModel extends Model {
   String label;
   int id, color;
 
-  StatusModel(this.label, this.id, this.color, this.session) : super([label, id, color, session]);
+  String get endpoint => "statuses";
+
+  StatusModel(this.label, this.id, this.color, this.session)
+      : super([label, id, color, session]);
 
   factory StatusModel.fromJson(Map<String, dynamic> json, session) =>
-    StatusModel(json["label"], json["id"], json["color"], session);
+      StatusModel(json["label"], json["id"], json["color"], session);
 }
 
 class Session {
@@ -49,8 +57,7 @@ class Session {
   Future<Session> init() async {
     final resp = await client.get("$endpoint/init");
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      final Map<String, dynamic> initJson =
-          jsonDecode(resp.body);
+      final Map<String, dynamic> initJson = jsonDecode(resp.body);
       for (Map<String, dynamic> statusJson in initJson["statuses"])
         addStatus(StatusModel.fromJson(statusJson, this));
       for (Map<String, dynamic> partJson in initJson["parts"])
@@ -62,11 +69,10 @@ class Session {
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<void> update(
-      Map<String, dynamic> json, UpdateType updateType, ModelType type) async {
+  Future<void> update(Model model, UpdateType updateType) async {
+    final url = "$endpoint/${model.endpoint}/${model.id ?? ""}";
+
     Response resp;
-    final url =
-        "$endpoint/${type.toString().split(".").last}/${json["id"] ?? ""}";
     switch (updateType) {
       case UpdateType.delete:
         resp = await client.delete(url);
