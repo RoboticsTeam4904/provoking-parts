@@ -67,7 +67,7 @@ class StatusModel extends Model {
   @override
   Map<String, dynamic> json() => {
         "id": id,
-        "name": label,
+        "label": label,
         "color": color
       };
 }
@@ -109,10 +109,10 @@ class Session {
         resp = await client.delete(url);
         break;
       case UpdateType.patch:
-        resp = await client.patch(url, body: model.json());
+        resp = await client.patch(url, body: jsonEncode(model.json()));
         break;
       case UpdateType.create:
-        resp = await client.post(url, body: model.json());
+        resp = await client.post(url, body: jsonEncode(model.json()));
         break;
       default:
         throw UnimplementedError("Something really bad hapenned :(");

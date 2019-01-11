@@ -28,7 +28,6 @@ const sessionJson = {
   "statuses": [
     {"id": 0, "label": "Complete", "color": 0x0fff0f},
     {"id": 1, "label": "Work in progress", "color": 0x0f0fff},
-    {"id": 2, "label": "Please help me", "color": 0xffffff}
   ]
 };
 
@@ -81,15 +80,17 @@ void main() {
     if (request.url.path.startsWith(partsEndpoint))
       return makeMockClientUpdateResponse(
           request,
-          int.parse(request.url.path.substring(partsEndpoint.length)),
-          ["id", "parentId", "name", "quantity", "statusId"]);
+          int.tryParse(request.url.path.substring(partsEndpoint.length)),
+          Set.from(["id", "parentId", "name", "quantity", "statusId"]),
+          sessionJson["parts"]);
 
     const statusesEndpoint = "/api/statuses/";
     if (request.url.path.startsWith(statusesEndpoint))
       return makeMockClientUpdateResponse(
           request,
-          int.parse(request.url.path.substring(statusesEndpoint.length)),
-          ["id", "label", "color"]);
+          int.tryParse(request.url.path.substring(statusesEndpoint.length)),
+          Set.from(["id", "label", "color"]),
+          sessionJson["statuses"]);
 
     return respond(request, 404);
   });
@@ -158,48 +159,58 @@ void main() {
   });
 
   test("correctly formats and sends updates", () async {
-    await session.update(PartModel.fromJson(sessionJson["parts"][0], session), UpdateType.delete);
-    await session.update(PartModel.fromJson(sessionJson["parts"][1], session), UpdateType.create);
-    await session.update(PartModel.fromJson(sessionJson["parts"][2], session), UpdateType.patch);
+    await session.update(PartModel.fromJson(sessionJson["parts"][0], session),
+        UpdateType.delete);
+    await session.update(
+        PartModel.fromJson(sessionJson["parts"][1], session), UpdateType.patch);
+    await session.update(
+        PartModel("test", 0, null, 1, null, session), UpdateType.create);
 
-    await session.update(PartModel.fromJson(sessionJson["statuses"][0], session), UpdateType.delete);
-    await session.update(PartModel.fromJson(sessionJson["statuses"][1], session), UpdateType.create);
-    await session.update(PartModel.fromJson(sessionJson["statuses"][2], session), UpdateType.patch);
+    await session.update(StatusModel.fromJson(sessionJson["statuses"][0], session),
+        UpdateType.delete);
+    await session.update(
+        StatusModel.fromJson(sessionJson["statuses"][1], session), UpdateType.patch);
+    await session.update(
+        StatusModel("test", null, 0xffffff, session), UpdateType.create);
   });
 }
 
-Response makeMockClientUpdateResponse(
-    request, id, List<String> requiredFields) {
+Response makeMockClientUpdateResponse(request, int id,
+    Set<String> requiredFields, List<Map<String, dynamic>> sessionModelJson) {
   if (request.method.toLowerCase() == "delete") {
-    if (!sessionJson.containsKey(id))
+    if (sessionModelJson.firstWhere((m) => m["id"] == id).isEmpty)
       return respond(request, 400,
-          body: "Request to delete part that does not exist");
+          body: "$id: Request to delete model that does not exist");
     if (request.body.isEmpty)
       return respond(request, 200);
     else
       return respond(request, 400,
-          body: "Request to delete part $id had non-empty body");
+          body: "$id: Request to delete model had non-empty body");
   } else {
     Map<String, dynamic> json;
     try {
       json = jsonDecode(request.body);
-      if (json["id"] != id)
-        return respond(request, 400,
-            body: "Request json id did not correspond with endpoint");
     } on FormatException {
       return respond(request, 400,
-          body: "Request body did not contain valid update json");
+          body: "$id: Request body did not contain valid update json");
     }
-    if (json.keys.where((s) => requiredFields.contains(s)).length ==
-        json.keys.length)
+    final requestFields = Set.from(json.keys);
+    if (!requestFields.containsAll(requiredFields))
       return respond(request, 400,
-          body: "Request body did not contain all required fields");
-    if (request.method.toLowerCase() == "post" && sessionJson.containsKey(id))
+          body:
+              "$id: Request body did not contain the following required fields: ${requestFields.difference(requiredFields)}, ${json}");
+
+    if (request.method.toLowerCase() == "post" && json["id"] != null)
       return respond(request, 400,
-          body: "Request to make part that already exists");
-    if (request.method.toLowerCase() == "patch" && !sessionJson.containsKey(id))
-      return respond(request, 400,
-          body: "Request to change part that does not exist");
+          body: "Requests to make parts must have no id");
+    if (request.method.toLowerCase() == "patch") {
+      if (json["id"] != id)
+        return respond(request, 400,
+            body: "$id: Requests id must corrospond with endpoint id");
+      if (sessionModelJson.where((m) => m["id"] == id).isEmpty)
+        return respond(request, 400,
+            body: "$id: Request to change part that does not exist");
+    }
   }
   return respond(request, 200);
 }
