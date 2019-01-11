@@ -5,7 +5,7 @@ public func routes(_ router: Router) throws {
     try router.oAuth(
         from: Google.self,
         authenticate: "google",
-        callback: "http://parts.botprovoking.org:8080/callback/google",
+        callback: "http://parts.botprovoking.org/callback/google",
         scope: ["profile"]) { (req, token) in
 
         let url = URL(string:
@@ -16,7 +16,7 @@ public func routes(_ router: Router) throws {
                 .flatMap { profile in
                 try req.session()["id"] = profile.id
                 return profile.save(on: req).map { _ in
-                    req.redirect(to: "/")
+                    req.redirect(to: "/index.html")
                 }
             }
         }
