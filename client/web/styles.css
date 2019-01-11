@@ -92,10 +92,8 @@ img {
   height: 100%;
 }
 
-#modalMessage {
-  display: flex;
+.modalMessage {
   margin-top: 20%;
-  position: absolute;
 }
 
 /* PARTS */
@@ -106,6 +104,11 @@ img {
 }
 
 .part {
+  font-size: 20px;
+  height: 28px;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-color: #aaaaaa;
   border-radius: 5px;
   border-style: solid;
   border-width: 1px;
@@ -115,14 +118,6 @@ img {
 .part:hover, #newPart:hover {
   background-color: #dddddd;
   cursor: pointer;
-}
-
-.part {
-  font-size: 20px;
-  height: 28px;
-  margin-top: 3px;
-  padding-top: 3px;
-  border-color: #aaaaaa;
 }
 
 .part .icon {
