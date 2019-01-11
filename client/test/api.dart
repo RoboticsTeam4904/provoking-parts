@@ -127,7 +127,7 @@ void main() {
     session.statuses.entries
         .forEach((entry) => expect(entry.key, equals(entry.value.id)));
 
-    session.parts.values.forEach(
+    session.parts.values.where((p) => p.parentId != null).forEach(
         (part) => expect(part, isIn(session.parts[part.parentId].children)));
   });
 
@@ -135,9 +135,9 @@ void main() {
     await session.pollForUpdates().take(updatesJson.length).last;
 
     expect(session.parts.values,
-        contains(PartModel.fromJson(updatesJson[0], session)));
+        contains(PartModel.fromJson(updatesJson[0]["new"], session)));
 
     expect(session.statuses.values,
-        contains(StatusModel.fromJson(updatesJson[1], session)));
+        contains(StatusModel.fromJson(updatesJson[1]["new"], session)));
   });
 }
