@@ -15,6 +15,10 @@ void main() async {
   }
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
+  final dummyPart = PartHtml(PartModel("", null, null, 0, null, session), modal, session);
+  document.querySelector("#newTopLevelPart").onClick.listen((_) {
+    dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
+  });
   final htmlParts =
       session.parts.map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   final partsContainer = document.querySelector("#partsList")
