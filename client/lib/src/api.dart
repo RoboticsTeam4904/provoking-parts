@@ -24,15 +24,15 @@ class PartModel extends Model {
   Session session;
   String name;
   List<PartModel> children = [];
-  int quantity, parentId, statusId;
-  StatusModel get status => session.statuses[statusId];
+  int quantity, parentID, statusID;
+  StatusModel get status => session.statuses[statusID];
 
   @override
   String get endpoint => "parts";
 
-  PartModel(this.name, this.statusId, this.id, this.quantity, this.parentId,
+  PartModel(this.name, this.statusID, this.id, this.quantity, this.parentID,
       this.session)
-      : super([name, statusId, id, quantity, parentId, session]);
+      : super([name, statusID, id, quantity, parentID, session]);
 
   factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
       PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
@@ -42,9 +42,9 @@ class PartModel extends Model {
   Map<String, dynamic> json() => {
         "id": id,
         "name": name,
-        "parentId": parentId,
+        "parentID": parentID,
         "quantity": quantity,
-        "statusId": statusId
+        "statusID": statusID
       };
 }
 
@@ -89,7 +89,7 @@ class Session {
       for (Map<String, dynamic> partJson in initJson["parts"])
         updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
-        parts[part.parentId]?.children?.add(part);
+        parts[part.parentID]?.children?.add(part);
 
       return;
     }
@@ -150,7 +150,7 @@ class Session {
 
   void updatePart(PartModel part) {
     parts[part.id] = part;
-    parts[part.parentId]?.children?.add(part);
+    parts[part.parentID]?.children?.add(part);
   }
 
   void updateStatus(StatusModel status) => statuses[status.id] = status;
