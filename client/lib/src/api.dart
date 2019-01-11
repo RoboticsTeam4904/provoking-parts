@@ -13,13 +13,18 @@ abstract class Model extends Equatable {
   String get endpoint;
 
   Model(List props) : super(props);
+
+  Map<String, dynamic> json();
 }
 
 class PartModel extends Model {
+  @override
+  int id;
+
+  Session session;
   String name;
   List<PartModel> children = [];
-  Session session;
-  int id, quantity, parentId, statusId;
+  int quantity, parentId, statusId;
   StatusModel get status => session.statuses[statusId];
 
   String get endpoint => "parts";
@@ -31,12 +36,23 @@ class PartModel extends Model {
   factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
       PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
           json["parentID"], session);
+
+  @override
+  Map<String, dynamic> json() => {
+        "id": id,
+        "name": name,
+        "parentId": parentId,
+        "quantity": quantity,
+        "statusId": statusId
+      };
 }
 
 class StatusModel extends Model {
+  @override
+  int id;
   Session session;
   String label;
-  int id, color;
+  int color;
 
   String get endpoint => "statuses";
 
@@ -45,6 +61,13 @@ class StatusModel extends Model {
 
   factory StatusModel.fromJson(Map<String, dynamic> json, session) =>
       StatusModel(json["label"], json["id"], json["color"], session);
+
+  @override
+  Map<String, dynamic> json() => {
+        "id": id,
+        "name": label,
+        "color": color
+      };
 }
 
 class Session {
@@ -64,7 +87,6 @@ class Session {
         updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId]?.children?.add(part);
-      return this;
     }
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
