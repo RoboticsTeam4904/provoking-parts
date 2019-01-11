@@ -35,8 +35,8 @@ class PartHtml {
             .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
     ]);
 
-  DivElement isolatedElem() {
-    return DivElement()
+  DivElement isolatedElem() =>
+    DivElement()
       ..className = "part"
       ..onClick.listen((_) => displayPartMenu())
       ..children.addAll([
@@ -68,7 +68,6 @@ class PartHtml {
                 selectedStatus: StatusHtml.fromId(model.statusId, session)))
             .elem,
       ]);
-  }
 
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {

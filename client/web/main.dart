@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
 
-void main() async {
+Future<void> main() async {
   Session session;
   try {
     session = await Session()
@@ -16,17 +16,20 @@ void main() async {
   }
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
-  final dummyPart =
-      PartHtml(PartModel("", null, null, 0, null, session), modal, session);
-  document.querySelector("#newTopLevelPart").onClick.listen((_) {
-    dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
-  });
+  try {
+    final dummyPart =
+        PartHtml(PartModel("", null, null, 0, null, session), modal, session);
+    document.querySelector("#newTopLevelPart").onClick.listen((_) {
+      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
+    });
+  } catch (e) {
+    CustomAlert(Alert.error, e.toString());
+  }
   final htmlParts =
       session.parts.map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   final partsContainer = document.querySelector("#partsList")
     ..children.addAll(htmlParts.values.map((p) => p.elem));
   final updateStream = session.pollForUpdates();
-
   try {
     await for (final update in updateStream) {
       if (update["model"] == "Part") {

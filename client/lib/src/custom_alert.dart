@@ -4,6 +4,21 @@ enum Alert { error, warning, success }
 
 const closeWindowImg = "/closewindow.png";
 
+class AlertManager {
+  Element alertsContainer;
+
+  AlertManager(this.alertsContainer);
+
+  void createAndShow(Alert type, String msg) => show(CustomAlert(type, msg));
+
+  void show(CustomAlert alert) =>
+      alertsContainer.children.insert(0, alert.elem);
+
+  void close(CustomAlert alert) => alert.close();
+
+  void closeAll() => alertsContainer.children.clear();
+}
+
 class CustomAlert {
   static DivElement alerts = document.querySelector("#alerts");
   DivElement elem;
