@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:equatable/equatable.dart';
 
-const endpoint = "https://parts.botprovoking.org/api";
+const endpoint = "http://parts.botprovoking.org/api";
 const clientID =
     "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
 enum UpdateType { delete, create, patch }
@@ -94,8 +94,10 @@ class Session {
         updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId]?.children?.add(part);
+      
       return;
     }
+
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
@@ -121,7 +123,7 @@ class Session {
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
     final StreamedResponse resp =
-        await client.send(Request("POST", Uri.parse("$endpoint/updates")));
+        await client.send(Request("GET", Uri.parse("$endpoint/updates")));
     if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
       throw Exception(await resp.stream.bytesToString());
     }
