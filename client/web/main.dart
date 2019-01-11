@@ -3,10 +3,9 @@ import 'dart:html';
 import 'package:client/client.dart';
 
 Future<void> main() async {
-  Session session;
+  final session = Session();
   try {
-    session = await Session()
-      ..init();
+    await session.init();
   } on StateError {
     // Redirect to authentication
     window.location.pathname = "/google";
