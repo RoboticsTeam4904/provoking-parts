@@ -36,6 +36,12 @@ public func routes(_ router: Router) throws {
     protected.patch("parts", Part.parameter, use: partController.update)
     protected.delete("parts", Part.parameter, use: partController.delete)
 
+    let statusController = StatusController()
+    protected.get("statuses", use: statusController.index)
+    protected.post("statuses", use: statusController.create)
+    protected.patch("statuses", Status.parameter, use: statusController.update)
+    protected.delete("statuses", Status.parameter, use: statusController.delete)
+
     let updateController = UpdateController()
     protected.get("init", use: updateController.initialize)
     protected.get("updates", use: updateController.handle)
