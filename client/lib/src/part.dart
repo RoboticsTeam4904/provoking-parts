@@ -18,8 +18,9 @@ class PartHtml {
   DivElement childrenContainer;
   StatusDropdown status;
   bool childrenDisplayed = true;
+  bool debug;
 
-  PartHtml(this.model, this.modal, this.session, {bool topLevel = false, bool debug = false}) {
+  PartHtml(this.model, this.modal, this.session, {bool topLevel = false, this.debug = false}) {
     if (debug) return;
     fullElem(topLevel);
   }
@@ -72,6 +73,7 @@ class PartHtml {
 
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {
+    if (debug) newPart = true;
     modal.show(EditMenu("Edit Part #${model.id}", [
       DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
       DefaultInput("number", "Quantity",
