@@ -18,9 +18,9 @@ Future<void> main() async {
   try {
     final dummyPart =
         PartHtml(PartModel("", null, null, 0, null, session), modal, session);
-    document.querySelector("#newTopLevelPart").onClick.listen((_) {
-      dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
-    });
+    // document.querySelector("#newTopLevelPart").onClick.listen((_) {
+    //   dummyPart.displayPartMenu(newPart: true, defaultJson: {"parentId": null});
+    // });
   } catch (e) {
     CustomAlert(Alert.error, "Dummy part error: $e");
   }
