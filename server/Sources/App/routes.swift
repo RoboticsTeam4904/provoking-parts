@@ -16,10 +16,15 @@ public func routes(_ router: Router) throws {
                 .flatMap { profile in
                 try req.session()["id"] = profile.id
                 return profile.save(on: req).map { _ in
-                    req.redirect(to: "/index.html")
+                    req.redirect(to: "/")
                 }
             }
         }
+    }
+
+    router.get { req in
+        req.http.url.path = "/index.html"
+        return router.route(req).respond(req)
     }
 
     let api = router.grouped("api")
