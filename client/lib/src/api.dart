@@ -79,6 +79,11 @@ class Session {
 
   Future<Session> init() async {
     final resp = await client.get("$endpoint/init");
+
+    if (resp.statusCode == 401) {
+      throw StateError("Not signed in");
+    }
+
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       final Map<String, dynamic> initJson = jsonDecode(resp.body);
       for (Map<String, dynamic> statusJson in initJson["statuses"])
