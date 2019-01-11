@@ -61,8 +61,12 @@ class PartHtml {
         ImageElement(src: plusImg, width: 20, height: 20)
           ..className = "new"
           ..onClick.listen((e) {
+            try {
             displayPartMenu(
                 newPart: true, defaultJson: {"parentId": model.parentId});
+            } catch (ex) {
+              CustomAlert(Alert.error, ex.toString());
+            }
             e.stopPropagation();
           }),
         (status = StatusDropdown("status",
