@@ -13,13 +13,6 @@ img {
   user-select: none;
 }
 
-.closeWindow {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  float: right;
-}
-
 /* ALERTS */
 #alerts {
   position: fixed;
@@ -52,6 +45,13 @@ img {
   background-color: #ff4b4b; 
 }
 
+.closeWindow {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  float: right;
+}
+
 /* MODAL */
 
 #modal {
@@ -73,10 +73,9 @@ img {
   height: 100%;
 }
 
-#messageContainer {
-  display: flex;
+.modalMessage {
   margin-top: 20%;
-  position: absolute;
+  z-index: 100;
 }
 
 /* PARTS */
@@ -87,22 +86,23 @@ img {
 }
 
 .part {
-  border-radius: 5px;
-  border-style: solid;
-  border-width: 1px;
-  background-color: #f0f0f0;
   font-size: 20px;
   height: 28px;
   margin-top: 3px;
   padding-top: 3px;
+  border-color: #aaaaaa;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: #f0f0f0;
 }
 
-.part:hover {
+.part:hover, #newPart:hover {
   background-color: #dddddd;
   cursor: pointer;
 }
 
-.partIcon {
+.part .icon {
   width: 10px;
   height: 10px;
   padding-left: 5px;
@@ -113,7 +113,7 @@ img {
   cursor: pointer;
 }
 
-.part .partStatus {
+.part .status {
   float: right;
   margin-right: 10px;
   padding-right: 3px;
@@ -122,7 +122,7 @@ img {
   border-radius: 10px;
 }
 
-.addPart {
+.part .new {
   float: right;
   margin-right: 15px;
   margin-left: 2px;
@@ -137,7 +137,9 @@ img {
   background-color: #ffffff;
 }
 
-.statusColor {
+/* STATUS */
+
+.status .color {
   display: inline-block;
   width: 10px;
   height: 10px;
@@ -147,5 +149,3 @@ img {
   border-width: 1px;
   vertical-align: 2.5%;
 }
-
-

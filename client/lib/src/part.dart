@@ -1,129 +1,100 @@
 import 'dart:html';
 import 'api.dart';
 import 'custom_alert.dart';
+import 'input.dart';
 import 'modal.dart';
 import 'status.dart';
 
-String discloserTriangleUrl = "../disctri";
+const discloserTriangleImg = "/disctri";
+const partImg = "/part.png";
+const plusImg = "/plus.png";
+const loadingAnim = "/loading.png";
 
-DivElement makeFullPart(Map<String, dynamic> json, {bool topLevel = false}) =>
+class PartHtml {
+  Session session;
+  DivElement elem;
+  PartModel model;
+  Modal modal;
+  DivElement childrenContainer;
+  StatusDropdown status;
+  bool childrenDisplayed = true;
+  bool debug;
+
+  PartHtml(this.model, this.modal, this.session, {bool topLevel = false, this.debug = false}) {
+    if (debug) return;
+    fullElem(topLevel);
+  }
+
+  DivElement fullElem(bool topLevel) => elem = DivElement()
+    ..className = "partContainer"
+    ..id = "part${model.id}"
+    ..style.paddingLeft = "${topLevel ? 0 : 20}px"
+    ..children.addAll([
+      isolatedElem(),
+      childrenContainer = DivElement()
+        ..className = "partChildren"
+        ..children
+            .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
+    ]);
+
+  DivElement isolatedElem() =>
     DivElement()
-      ..className = "partContainer"
-      ..id = "part${json["id"]}"
-      ..style.paddingLeft = "${topLevel ? 0 : 20}px"
+      ..className = "part"
+      ..onClick.listen((_) => displayPartMenu())
       ..children.addAll([
-        makeSinglePart(json),
-        DivElement()
-          ..className = "partChildren"
-          ..children.addAll(json["children"].map(makeFullPart))
+        model.children.isEmpty
+            ? (ImageElement(src: partImg)..className = "icon")
+            : (ImageElement(src: "${discloserTriangleImg}true.png")
+              ..onClick.listen((e) {
+                childrenContainer.style.display =
+                    (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+                (e.target as ImageElement).srcset =
+                    "$discloserTriangleImg$childrenDisplayed.png";
+              })
+              ..className = "icon disclosureTri"),
+        SpanElement()
+          ..className = "name"
+          ..text = model.name,
+        SpanElement()
+          ..className = "quantity"
+          ..text = model.quantity.toString(),
+        ImageElement(src: plusImg, width: 20, height: 20)
+          ..className = "new"
+          ..onClick.listen((e) {
+            displayPartMenu(
+                newPart: true, defaultJson: {"parentId": model.parentId});
+            e.stopPropagation();
+          }),
+        (status = StatusDropdown("status",
+                session.statuses.values.map((s) => StatusHtml(s)).toList(),
+                selectedStatus: StatusHtml.fromId(model.statusId, session)))
+            .elem,
       ]);
 
-DivElement makeSinglePart(Map<String, dynamic> json) => DivElement()
-  ..className = "part"
-  ..onClick.listen((e) => showModal(partEditMenu(json)))
-  ..children.addAll([
-    json["children"].isEmpty
-        ? (ImageElement(src: "../part.png")..className = "partIcon")
-        : (ImageElement(src: "${discloserTriangleUrl}true.png")
-          ..onClick.listen((e) {
-            e.stopPropagation();
-            final ImageElement disclosureTri = (e.target as ImageElement);
-            final DivElement partChildren = document
-                .querySelector("#part${json["id"]}")
-                .querySelector(".partChildren");
-            final bool disclosed = (partChildren.style.display == "none");
-            disclosureTri.src = "$discloserTriangleUrl$disclosed.png";
-            partChildren.style.display = disclosed ? "block" : "none";
-          })
-          ..className = "partIcon disclosureTri"),
-    SpanElement()
-      ..className = "partName"
-      ..text = json["name"],
-    SpanElement()
-      ..className = "partCount"
-      ..text = json["quantity"].toString(),
-    ImageElement(src: "plus.png", width: 20, height: 20)
-      ..className = "addPart"
-      ..onClick.listen((e) {
-        e.stopPropagation();
-        showModal(partEditMenu({"parentID": json["parentID"]}));
+  void displayPartMenu(
+      {bool newPart = false, Map<String, dynamic> defaultJson}) {
+    modal.show(EditMenu("Edit Part #${model.id}", [
+      DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
+      DefaultInput("number", "Quantity",
+          defaultValue: newPart ? "" : model.quantity.toString(),
+          customInputValidation: (q) {
+        final parsed = int.tryParse(q.value);
+        if (parsed == null || parsed < 0)
+          throw const FormatException("You must enter a natural number");
       }),
-    makeStatus(sortedSession["statuses"][json["statusID"]]),
-  ]);
+      StatusDropdown(
+          "status", session.statuses.values.map((s) => StatusHtml(s)).toList(),
+          selectedStatus:
+              newPart ? null : StatusHtml.fromId(status.value, session))
+    ], (json) {
+      try {
+        session.update(PartModel.fromJson(json, session), UpdateType.patch);
+      } catch (e) {
+        CustomAlert(Alert.error, e.toString());
+      }
+    }, defaultJson: defaultJson ?? {}, onCancel: modal.close)
+        .elem);
+  }
 
-DivElement partEditMenu([Map<String, dynamic> json]) {
-  final UpdateType editType = json.containsKey("id") ? UpdateType.patch : UpdateType.put;
-  final DivElement menu = DivElement();
-  final StatusDropdown status = StatusDropdown(json["statusID"]);
-  InputElement name, count;
-  return menu
-    ..children.add(DivElement()
-      ..className = "partEditMenu"
-      ..children.addAll([
-        DivElement()
-          ..className = "title"
-          ..text = "Part ID #${json["id"] ?? "new"}",
-        DivElement()
-          ..className = "inputs"
-          ..children.addAll([
-            name = InputElement(type: "text")
-              ..className = "name"
-              ..value = json["name"] ?? "",
-            BRElement(),
-            count = InputElement(type: "number")
-              ..className = "count"
-              ..value = json["quantity"].toString(),
-            status.dropdownElem..className = "status"
-          ]),
-        DivElement()
-          ..className = "end"
-          ..children.addAll([
-            ButtonElement()
-              ..className = "close"
-              ..text = "Cancel"
-              ..onClick.listen((_) => closeModal()),
-            ButtonElement()
-              ..className = "save"
-              ..text = "Save"
-              ..onClick.listen((_) async {
-                final Element loading = ImageElement(src: "loading.gif");
-                menu.children
-                  ..add(loading)
-                  ..first.style.display = "none";
-                final List<String> inputErrs = [];
-                int newCount;
-                if ((newCount = int.tryParse(count.value)) == null ||
-                    (newCount?.isNegative ?? false))
-                  inputErrs.add(
-                      "The quantity of this part must be a natural number.");
-                if (name.value.isEmpty) inputErrs.add("This part needs a name.");
-                if (status.selectedID.isNegative)
-                  inputErrs.add("You need to chose a status.");
-                if (inputErrs.isNotEmpty) {
-                  inputErrs.forEach((e) => customAlert(Alert.warning, e));
-                  loading.remove();
-                  menu.children.first.style.display = "";
-                  return;
-                }
-                final Map<String, dynamic> editedJson = {
-                  "id": json["id"],
-                  "name": name.value,
-                  "quantity": newCount,
-                  "statusID": status.selectedID,
-                  "parentID": json["parentID"],
-                };
-                try {
-                  await update(editedJson, editType, ItemType.parts);
-                  customAlert(
-                    Alert.success, "Successfully updated ${name.value}.");
-                } catch (err) {
-                  customAlert(Alert.error,
-                      "Error while communicating with server: ${err.toString()}");
-                } finally {
-                  loading.remove();
-                  menu.children.first.style.display = "";
-                }
-              })
-          ])
-      ]));
+  void update() => elem.children.first = isolatedElem();
 }
