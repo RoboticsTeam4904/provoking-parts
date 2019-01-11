@@ -22,9 +22,9 @@ public func routes(_ router: Router) throws {
         }
     }
 
-    router.get { req in
-        req.http.url.path = "/index.html"
-        return router.route(req).respond(req)
+    router.get { req -> Future<Response> in
+        let dirs = try req.make(DirectoryConfig.self)
+        return try req.streamFile(at: dirs.workDir + "Public/index.html")
     }
 
     let api = router.grouped("api")
