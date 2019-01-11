@@ -9,7 +9,7 @@ class Modal {
   }
 
   void show(Element msg) {
-    message = msg.clone(true);
+    message = msg;
     modalContainer.children.add(message..className += " modalMessage");
     modalContainer.style.display = "flex";
   }

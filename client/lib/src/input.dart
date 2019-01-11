@@ -56,7 +56,6 @@ class EditMenu {
       {Function() onCancel, Map<String, dynamic> defaultJson})
       : onCancel = onCancel ?? (() {}),
         defaultJson = defaultJson ?? {} {
-    onCancel ??= () {};
     elem = DivElement()
       ..className = "editMenu"
       ..children.addAll([

@@ -73,7 +73,6 @@ class PartHtml {
 
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {
-    if (debug) newPart = true;
     modal.show(EditMenu("Edit Part #${model.id}", [
       DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
       DefaultInput("number", "Quantity",

@@ -65,11 +65,7 @@ class StatusModel extends Model {
       StatusModel(json["label"], json["id"], json["color"], session);
 
   @override
-  Map<String, dynamic> json() => {
-        "id": id,
-        "label": label,
-        "color": color
-      };
+  Map<String, dynamic> json() => {"id": id, "label": label, "color": color};
 }
 
 class Session {
@@ -94,7 +90,7 @@ class Session {
         updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId]?.children?.add(part);
-      
+
       return;
     }
 
@@ -118,7 +114,8 @@ class Session {
         throw UnimplementedError("Something really bad hapenned :(");
     }
     if (resp.statusCode >= 200 && resp.statusCode < 300) return;
-    throw Exception("${resp.statusCode}: ${resp.body}");
+    throw Exception(
+        "Failed to update ${model.endpoint}/${model.id}: ${resp.statusCode}: ${resp.body}");
   }
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
