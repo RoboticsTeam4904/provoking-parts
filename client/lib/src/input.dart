@@ -73,7 +73,9 @@ class EditMenu {
               ..className = "save"
               ..text = "Save"
               ..onClick.listen((_) {
-                try {final json = assembleJson();
+                var json;
+                try {
+                  json = assembleJson();
                 } catch (e) {
                   CustomAlert(Alert.error, e.toString());
                 }
