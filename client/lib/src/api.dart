@@ -59,9 +59,9 @@ class Session {
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       final Map<String, dynamic> initJson = jsonDecode(resp.body);
       for (Map<String, dynamic> statusJson in initJson["statuses"])
-        addStatus(StatusModel.fromJson(statusJson, this));
+        updateStatus(StatusModel.fromJson(statusJson, this));
       for (Map<String, dynamic> partJson in initJson["parts"])
-        addPart(PartModel.fromJson(partJson, this));
+        updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId]?.children?.add(part);
       return this;
@@ -93,37 +93,37 @@ class Session {
   Stream<Map<String, dynamic>> pollForUpdates() async* {
     final StreamedResponse resp =
         await client.send(Request("POST", Uri.parse("$endpoint/updates")));
-    if (resp.statusCode >= 200 && resp.statusCode < 300) {
+    if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
       throw Exception(await resp.stream.bytesToString());
     }
     String updateBuf = "";
-    await for (String char in resp.stream.toStringStream()) {
-      if (char != "\n") {
-        updateBuf += char;
-        continue;
-      } else if (updateBuf.isEmpty) continue;
-      final update = jsonDecode(updateBuf);
-      updateBuf = "";
+    await for (final msg in resp.stream.toStringStream())
+      for (final char in msg.split('')) {
+        if (char != "\n") {
+          updateBuf += char;
+          continue;
+        } else if (updateBuf.isEmpty) continue;
+        final update = jsonDecode(updateBuf);
+        updateBuf = "";
 
-      if (update["new"] == null) if (update["model"] == "Status")
-        parts.remove(update["old"]["id"]);
-      else
-        statuses.remove(update["old"]["id"]);
-      else {
-        if (update["model"] == "Part") {
-          final newPart = PartModel.fromJson(update["new"], this);
-          parts[newPart.id] = newPart;
-          parts[newPart.parentId].children.add(newPart);
-        } else {
-          final newStatus = statuses[update["new"]["statusId"]];
-          statuses[newStatus.id] = newStatus;
+        if (update["new"] == null) if (update["model"] == "Status")
+          parts.remove(update["old"]["id"]);
+        else
+          statuses.remove(update["old"]["id"]);
+        else {
+          if (update["model"] == "Part")
+            updatePart(PartModel.fromJson(update["new"], this));
+          else
+            updateStatus(StatusModel.fromJson(update["new"], this));
         }
+        yield update;
       }
-      yield update;
-    }
   }
 
-  void addPart(PartModel part) => parts[part.id] = part;
+  void updatePart(PartModel part) {
+    parts[part.id] = part;
+    parts[part.parentId]?.children?.add(part);
+  }
 
-  void addStatus(StatusModel status) => statuses[status.id] = status;
+  void updateStatus(StatusModel status) => statuses[status.id] = status;
 }
