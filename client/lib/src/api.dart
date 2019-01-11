@@ -79,7 +79,7 @@ class Session {
 
   Session([Client client]) : client = client ?? Client();
 
-  Future<Session> init() async {
+  Future<void> init() async {
     final resp = await client.get("$endpoint/init");
 
     if (resp.statusCode == 401) {
@@ -94,6 +94,7 @@ class Session {
         updatePart(PartModel.fromJson(partJson, this));
       for (PartModel part in parts.values)
         parts[part.parentId]?.children?.add(part);
+      return;
     }
     throw Exception("${resp.statusCode}: ${resp.body}");
   }

@@ -5,7 +5,7 @@ import 'package:client/client.dart';
 void main() async {
   Session session;
   try {
-    session = await Session().init();
+    session = await Session()..init();
   } on StateError {
     // Redirect to authentication
     window.location.pathname = "/google";

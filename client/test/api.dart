@@ -75,6 +75,36 @@ void main() {
       return respond(request, 200, body: body.toString());
     }
 
+    const partsEndpoint = "/api/parts/";
+    if (request.url.path.startsWith(partsEndpoint)) {
+      final id = int.parse(request.url.path.substring(partsEndpoint.length));
+      if (request.method.toLowerCase() == "delete") {
+        if (!sessionJson.containsKey(id))
+          return respond(request, 400,
+              body: "Request to delete part that does not exist");
+        if (request.body.isEmpty)
+          return respond(request, 200);
+        else
+          return respond(request, 400,
+              body: "Request to delete part $id had non-empty body");
+      } else if (request.method.toLowerCase() == "patch") {
+        if (!sessionJson.containsKey(id))
+          return respond(request, 400,
+              body: "Request to change part that does not exist");
+        try {
+          final json = jsonDecode(request.body);
+          if (json["id"] != id)
+            return respond(request, 400,
+                body: "Request json id did not correspond with endpoint");
+        } on FormatException {
+          return respond(request, 400,
+              body: "Request body did not contain valid update json");
+        }
+      } else {}
+    }
+
+    if (request.url.path.startsWith("/api/statuses/")) {}
+
     return respond(request, 404);
   });
 
@@ -123,7 +153,7 @@ void main() {
 
     session.parts.entries
         .forEach((entry) => expect(entry.key, equals(entry.value.id)));
-    
+
     session.statuses.entries
         .forEach((entry) => expect(entry.key, equals(entry.value.id)));
 
@@ -140,4 +170,6 @@ void main() {
     expect(session.statuses.values,
         contains(StatusModel.fromJson(updatesJson[1]["new"], session)));
   });
+
+  test("correctly formats and sends updates", () async {});
 }
