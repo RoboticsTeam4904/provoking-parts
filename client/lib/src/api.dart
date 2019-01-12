@@ -40,9 +40,9 @@ class PartModel extends Model {
 
   @override
   Map<String, String> toJson() {
-    final json = {"name": name, "quantity": quantity.toString(), "statusID": statusID.toString()};
-    if (parentID != null) json["parentID"] = parentID.toString();
-    if (id != null) json["id"] = id.toString();
+    final json = {"name": name, "quantity": quantity, "statusID": statusID};
+    if (parentID != null) json["parentID"] = parentID;
+    if (id != null) json["id"] = id;
     return json;
   }
 }
@@ -65,8 +65,8 @@ class StatusModel extends Model {
 
   @override
   Map<String, dynamic> toJson() {
-    final json = {"label": label, "color": color.toString()};
-    if (id != null) json["id"] = id.toString();
+    final json = {"label": label, "color": color};
+    if (id != null) json["id"] = id;
     return json;
   }
 }
@@ -108,11 +108,15 @@ class Session {
         resp = await client.delete(url);
         break;
       case UpdateType.patch:
-        resp = await client.patch(url, body: model.toJson());
+        resp = await client.patch(url,
+            body: jsonEncode(model.toJson()),
+            headers: {"content-type": "application/json"});
         break;
       case UpdateType.create:
         print(model.toJson());
-        resp = await client.post(url, body: model.toJson());
+        resp = await client.post(url,
+            body: jsonEncode(model.toJson()),
+            headers: {"content-type": "application/json"});
         break;
       default:
         throw UnimplementedError("Something really bad hapenned :(");
