@@ -39,13 +39,12 @@ class PartModel extends Model {
           json["parentID"], session);
 
   @override
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "parentID": parentID,
-        "quantity": quantity,
-        "statusID": statusID
-      };
+  Map<String, String> toJson() {
+    final json = {"name": name, "quantity": quantity.toString(), "statusID": statusID.toString()};
+    if (parentID != null) json["parentID"] = parentID.toString();
+    if (id != null) json["id"] = id.toString();
+    return json;
+  }
 }
 
 class StatusModel extends Model {
@@ -65,7 +64,11 @@ class StatusModel extends Model {
       StatusModel(json["label"], json["id"], json["color"], session);
 
   @override
-  Map<String, dynamic> toJson() => {"id": id, "label": label, "color": color};
+  Map<String, dynamic> toJson() {
+    final json = {"label": label, "color": color.toString()};
+    if (id != null) json["id"] = id.toString();
+    return json;
+  }
 }
 
 class Session {
@@ -108,6 +111,7 @@ class Session {
         resp = await client.patch(url, body: model.toJson());
         break;
       case UpdateType.create:
+        print(model.toJson());
         resp = await client.post(url, body: model.toJson());
         break;
       default:

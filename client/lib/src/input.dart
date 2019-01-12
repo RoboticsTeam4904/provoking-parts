@@ -19,7 +19,7 @@ class DefaultInput extends InputField<String> {
   @override
   String get value => input.value;
 
-  DefaultInput(String type, String name,
+  DefaultInput(String type, String name, String displayName,
       {String defaultValue = "",
       Function(DefaultInput) customInputValidation,
       this.overrideDefaultValidation = false})
@@ -28,7 +28,7 @@ class DefaultInput extends InputField<String> {
             name,
             DivElement()
               ..children.addAll([
-                SpanElement()..text = name,
+                SpanElement()..text = displayName,
                 InputElement(type: type)
                   ..value = defaultValue
                   ..name = name
@@ -39,6 +39,37 @@ class DefaultInput extends InputField<String> {
   @override
   void validateInput() {
     if (!overrideDefaultValidation && (value == null || value.isEmpty))
+      throw FormatException("You must input something for $name.");
+    customInputValidation(this);
+  }
+}
+
+class IntInput extends InputField<int> {
+  InputElement input;
+  Function(IntInput) customInputValidation;
+
+  @override
+  int get value => int.tryParse(input.value);
+
+  IntInput(String name, String displayName,
+      {var defaultValue,
+      Function(IntInput) customInputValidation})
+      : customInputValidation = customInputValidation ?? ((_) {}),
+        super(
+            name,
+            DivElement()
+              ..children.addAll([
+                SpanElement()..text = displayName,
+                InputElement(type: "number")
+                  ..value = defaultValue.toString()
+                  ..name = name
+              ])) {
+    input = elem.lastChild;
+  }
+
+  @override
+  void validateInput() {
+    if (value == null)
       throw FormatException("You must input something for $name.");
     customInputValidation(this);
   }
@@ -73,9 +104,13 @@ class EditMenu {
               ..className = "save"
               ..text = "Save"
               ..onClick.listen((_) async {
-                final json = assembleJson();
-                if (errors.children.isNotEmpty) return;
-                await onComplete(json);
+                try {
+                  final json = assembleJson();
+                  if (errors.children.isNotEmpty) return;
+                  await onComplete(json);
+                } catch (e) {
+                  CustomAlert(Alert.error, "a $e");
+                }
               }),
             ButtonElement()
               ..className = "cancel"

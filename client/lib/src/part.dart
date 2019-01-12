@@ -17,7 +17,7 @@ class PartHtml {
   Modal modal;
   DivElement childrenContainer;
   StatusDropdown status;
-  bool childrenDisplayed = true;
+  bool childrenDisplayed = false;
   bool debug;
 
   PartHtml(this.model, this.modal, this.session,
@@ -49,7 +49,8 @@ class PartHtml {
               childrenContainer.style.display =
                   (childrenDisplayed = !childrenDisplayed) ? "none" : "";
               (e.target as ImageElement).srcset =
-                  "$discloserTriangleImg$childrenDisplayed.png";
+                  "$discloserTriangleImg${!childrenDisplayed}.png";
+              e.stopPropagation();
             })
             ..className = "icon disclosureTri"),
       SpanElement()
@@ -74,24 +75,30 @@ class PartHtml {
   void displayPartMenu(
       {bool newPart = false, Map<String, dynamic> defaultJson}) {
     modal.show(EditMenu("Edit Part #${model.id}", [
-      DefaultInput("text", "Name", defaultValue: newPart ? "" : model.name),
-      DefaultInput("number", "Quantity",
-          defaultValue: newPart ? "" : model.quantity.toString(),
+      DefaultInput("text", "name", "Name", defaultValue: newPart ? "" : model.name,),
+      IntInput("quantity", "Quantity",
+          defaultValue: newPart ? "" : model.quantity,
           customInputValidation: (q) {
-        final parsed = int.tryParse(q.value);
-        if (parsed == null || parsed < 0)
+        if (q.value < 0)
           throw const FormatException("You must enter a natural number");
       }),
       StatusDropdown(
-          "status", session.statuses.values.map((s) => StatusHtml(s)).toList(),
+          "statusID", session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
       try {
-        await session.update(PartModel.fromJson(json, session),
+        var p;
+        try {
+          p = PartModel.fromJson(json, session);
+        } catch (e) {
+          CustomAlert(Alert.error, "c $e");
+        }
+        await session.update(p,
             newPart ? UpdateType.create : UpdateType.patch);
+        modal.close();
       } catch (e) {
-        CustomAlert(Alert.error, e.toString());
+        CustomAlert(Alert.error, "b $e");
       }
     }, defaultJson: defaultJson ?? {}, onCancel: modal.close)
         .elem);
