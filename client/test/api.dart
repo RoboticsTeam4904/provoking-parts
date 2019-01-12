@@ -58,43 +58,43 @@ final updatesJson = [
   }
 ];
 
+final client = MockClient((request) async {
+  if (request.url.path == "/api/init") {
+    return respond(request, 200, body: jsonEncode(sessionJson));
+  }
+
+  if (request.url.path == "/api/updates") {
+    final body = StringBuffer()
+      ..writeln()
+      ..writeln(jsonEncode(updatesJson[0]))
+      ..writeln()
+      ..writeln()
+      ..writeln(jsonEncode(updatesJson[1]))
+      ..writeln();
+
+    return respond(request, 200, body: body.toString());
+  }
+
+  const partsEndpoint = "/api/parts/";
+  if (request.url.path.startsWith(partsEndpoint))
+    return makeMockClientUpdateResponse(
+        request,
+        int.tryParse(request.url.path.substring(partsEndpoint.length)),
+        Set.from(["id", "parentID", "name", "quantity", "statusID"]),
+        sessionJson["parts"]);
+
+  const statusesEndpoint = "/api/statuses/";
+  if (request.url.path.startsWith(statusesEndpoint))
+    return makeMockClientUpdateResponse(
+        request,
+        int.tryParse(request.url.path.substring(statusesEndpoint.length)),
+        Set.from(["id", "label", "color"]),
+        sessionJson["statuses"]);
+
+  return respond(request, 404);
+});
+
 void main() {
-  final client = MockClient((request) async {
-    if (request.url.path == "/api/init") {
-      return respond(request, 200, body: jsonEncode(sessionJson));
-    }
-
-    if (request.url.path == "/api/updates") {
-      final body = StringBuffer()
-        ..writeln()
-        ..writeln(jsonEncode(updatesJson[0]))
-        ..writeln()
-        ..writeln()
-        ..writeln(jsonEncode(updatesJson[1]))
-        ..writeln();
-
-      return respond(request, 200, body: body.toString());
-    }
-
-    const partsEndpoint = "/api/parts/";
-    if (request.url.path.startsWith(partsEndpoint))
-      return makeMockClientUpdateResponse(
-          request,
-          int.tryParse(request.url.path.substring(partsEndpoint.length)),
-          Set.from(["id", "parentID", "name", "quantity", "statusID"]),
-          sessionJson["parts"]);
-
-    const statusesEndpoint = "/api/statuses/";
-    if (request.url.path.startsWith(statusesEndpoint))
-      return makeMockClientUpdateResponse(
-          request,
-          int.tryParse(request.url.path.substring(statusesEndpoint.length)),
-          Set.from(["id", "label", "color"]),
-          sessionJson["statuses"]);
-
-    return respond(request, 404);
-  });
-
   final session = Session(client);
 
   test("correctly deserializes Part models", () {

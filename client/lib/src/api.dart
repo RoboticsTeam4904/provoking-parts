@@ -39,7 +39,7 @@ class PartModel extends Model {
           json["parentID"], session);
 
   @override
-  Map<String, String> toJson() {
+  Map<String, dynamic> toJson() {
     final json = {"name": name, "quantity": quantity, "statusID": statusID};
     if (parentID != null) json["parentID"] = parentID;
     if (id != null) json["id"] = id;
@@ -113,7 +113,6 @@ class Session {
             headers: {"content-type": "application/json"});
         break;
       case UpdateType.create:
-        print(model.toJson());
         resp = await client.post(url,
             body: jsonEncode(model.toJson()),
             headers: {"content-type": "application/json"});
