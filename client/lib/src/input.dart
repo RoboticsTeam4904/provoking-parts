@@ -49,8 +49,8 @@ class EditMenu {
   DivElement errors;
   List<InputField> fields;
   Map<String, dynamic> defaultJson;
-  Function(Map<String, dynamic> json) onComplete;
-  Function() onCancel;
+  Future<void> Function(Map<String, dynamic> json) onComplete;
+  void Function() onCancel;
 
   EditMenu(String title, this.fields, this.onComplete,
       {Function() onCancel, Map<String, dynamic> defaultJson})
@@ -72,10 +72,10 @@ class EditMenu {
             ButtonElement()
               ..className = "save"
               ..text = "Save"
-              ..onClick.listen((_) {
+              ..onClick.listen((_) async {
                 final json = assembleJson();
                 if (errors.children.isNotEmpty) return;
-                onComplete(json);
+                await onComplete(json);
               }),
             ButtonElement()
               ..className = "cancel"
