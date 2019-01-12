@@ -86,9 +86,9 @@ class PartHtml {
           "status", session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
-    ], (json) {
+    ], (json) async {
       try {
-        session.update(PartModel.fromJson(json, session), UpdateType.patch);
+        await session.update(PartModel.fromJson(json, session), UpdateType.patch);
       } catch (e) {
         CustomAlert(Alert.error, e.toString());
       }
