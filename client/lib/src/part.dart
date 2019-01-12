@@ -88,7 +88,8 @@ class PartHtml {
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
       try {
-        await session.update(PartModel.fromJson(json, session), UpdateType.patch);
+        await session.update(PartModel.fromJson(json, session),
+            newPart ? UpdateType.create : UpdateType.patch);
       } catch (e) {
         CustomAlert(Alert.error, e.toString());
       }
