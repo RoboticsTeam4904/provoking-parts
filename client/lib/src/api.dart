@@ -115,7 +115,7 @@ class Session {
     }
     if (resp.statusCode >= 200 && resp.statusCode < 300) return;
     throw Exception(
-        "Failed to update ${model.endpoint}/${model.id}: ${resp.statusCode}: ${resp.body}");
+        "Failed to update at $url: ${resp.statusCode}: ${resp.body}");
   }
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
