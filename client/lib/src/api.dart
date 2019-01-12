@@ -14,7 +14,7 @@ abstract class Model extends Equatable {
 
   Model(List props) : super(props);
 
-  Map<String, dynamic> json();
+  Map<String, dynamic> toJson();
 }
 
 class PartModel extends Model {
@@ -39,7 +39,7 @@ class PartModel extends Model {
           json["parentID"], session);
 
   @override
-  Map<String, dynamic> json() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
         "parentID": parentID,
@@ -65,7 +65,7 @@ class StatusModel extends Model {
       StatusModel(json["label"], json["id"], json["color"], session);
 
   @override
-  Map<String, dynamic> json() => {"id": id, "label": label, "color": color};
+  Map<String, dynamic> toJson() => {"id": id, "label": label, "color": color};
 }
 
 class Session {
@@ -105,10 +105,10 @@ class Session {
         resp = await client.delete(url);
         break;
       case UpdateType.patch:
-        resp = await client.patch(url, body: jsonEncode(model.json()));
+        resp = await client.patch(url, body: model.toJson());
         break;
       case UpdateType.create:
-        resp = await client.post(url, body: jsonEncode(model.json()));
+        resp = await client.post(url, body: model.toJson());
         break;
       default:
         throw UnimplementedError("Something really bad hapenned :(");
