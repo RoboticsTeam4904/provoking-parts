@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'custom_alert.dart';
+
 abstract class InputField<T> {
   String name;
   Element elem;
@@ -73,17 +74,18 @@ class EditMenu {
               ..className = "save"
               ..text = "Save"
               ..onClick.listen((_) {
-                var json;
                 try {
-                  json = assembleJson();
+                  final
+
+                    json = assembleJson();
+  
+                    CustomAlert(Alert.error, e.toString());
+
+                  if (errors.children.isNotEmpty) return;
+                  onComplete(json);
                 } catch (e) {
                   CustomAlert(Alert.error, e.toString());
                 }
-                print(errors);
-                print(errors?.children);
-                print(errors?.children?.isNotEmpty);
-                if (errors.children.isNotEmpty) return;
-                onComplete(json);
               }),
             ButtonElement()
               ..className = "cancel"
