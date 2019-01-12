@@ -79,8 +79,6 @@ class EditMenu {
 
                     json = assembleJson();
   
-                    CustomAlert(Alert.error, e.toString());
-
                   if (errors.children.isNotEmpty) return;
                   onComplete(json);
                 } catch (e) {
