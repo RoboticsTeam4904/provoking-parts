@@ -75,6 +75,13 @@ class FetchClient extends BaseClient {
             credentials: 'same-origin',
             cache: 'no-store'));
 
+    if (response.body == null) {
+      throw UnsupportedError(
+          'Firefox does not currently support the Fetch API by default. '
+          'Please go to about:config and enable the javascript.options.streams '
+          'flag.');
+    }
+
     final responseStream = _readFromStreamReader(response.body.getReader());
     return StreamedResponse(responseStream, response.status, request: request);
   }
