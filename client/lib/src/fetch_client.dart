@@ -20,13 +20,13 @@ class FetchInitOptions {
       String cache})
       : _options = {
           'method': method,
-          'headers': jsify(headers),
+          'headers': headers,
           'body': body,
           'credentials': credentials,
           'cache': cache
         };
 
-  Map toMap() => _options;
+  dynamic toJS() => jsify(_options);
 }
 
 @JS('Response')
@@ -52,8 +52,11 @@ class StreamReaderReadResult {
   external bool get done;
 }
 
+@JS('window.fetch')
+external dynamic _windowFetch(input, init);
+
 Future<FetchResponse> _fetch(input, FetchInitOptions init) =>
-    window.fetch(input, init.toMap());
+    promiseToFuture(_windowFetch(input, init.toJS()));
 
 Future<StreamReaderReadResult> _callRead(ReadableStreamDefaultReader reader) =>
     promiseToFuture(reader.read());
@@ -64,11 +67,11 @@ class FetchClient extends BaseClient {
     final body = await request.finalize().toBytes();
 
     final response = await _fetch(
-        null,
+        request.url.toString(),
         FetchInitOptions(
             method: request.method,
-            headers: jsify(request.headers),
-            body: body,
+            headers: request.headers,
+            body: body.isEmpty ? null : body,
             credentials: 'same-origin',
             cache: 'no-store'));
 
