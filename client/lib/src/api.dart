@@ -91,9 +91,8 @@ class Session {
   final Client client;
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
-  void Function(Map m) onUpdate;
 
-  Session(this.onUpdate, [Client client]) : client = client ?? Client();
+  Session(this.client);
 
   Future<void> init() async {
     final resp = await client.get("$endpoint/init");
@@ -111,21 +110,18 @@ class Session {
       for (final part in parts.values)
         parts[part.parentID]?.children?.add(part);
       parts.removeWhere((_, p) =>
-        (!parts.containsKey(p.parentID) && p.parentID != null) || !statuses.containsKey(p.statusID)
-      ); //TODO
+          (!parts.containsKey(p.parentID) && p.parentID != null) ||
+          !statuses.containsKey(p.statusID)); //TODO
       return;
     }
 
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<void> update(Map old, Model model, UpdateType updateType) async {
-    final Map<String, dynamic> updateJson = {
-      "model": model.endpoint == "Statuses" ? "Status" : "Part"
-    };
-    if (updateType != UpdateType.create) updateJson["old"] = old;
+  Future<void> update(Model model, UpdateType updateType) async {
     final url = "$endpoint/${model.endpoint}/${model.id ?? ""}";
     Response resp;
+    print(model.toJson());
     switch (updateType) {
       case UpdateType.delete:
         resp = await client.delete(url);
@@ -146,10 +142,6 @@ class Session {
     if (!(resp.statusCode >= 200 && resp.statusCode < 300))
       throw Exception(
           "Failed to $updateType at $url: ${resp.statusCode}: ${resp.body}");
-    if (updateType != UpdateType.delete) {
-      updateJson["new"] = jsonDecode(resp.body);
-    }
-    onUpdate(updateJson);
   }
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
@@ -159,8 +151,10 @@ class Session {
       throw Exception(await resp.stream.bytesToString());
     }
     String updateBuf = "";
-    await for (final msg in resp.stream.toStringStream())
+    await for (final msg in resp.stream.toStringStream()) {
+      print("msg$msg");
       for (final char in msg.split('')) {
+        print("char$char");
         if (char != "\n") {
           updateBuf += char;
           continue;
@@ -168,23 +162,27 @@ class Session {
         final update = jsonDecode(updateBuf);
         updateBuf = "";
 
-        if (update["new"] == null) if (update["model"] == "Status")
-          parts.remove(update["old"]["id"]);
+        if (update["new"] == null) if (update["model"] != "Status")
+          removePart(parts[update["old"]["id"]]);
         else
-          statuses.remove(update["old"]["id"]);
+          removeStatus(statuses[update["old"]["id"]]);
         else {
           if (update["model"] == "Part")
-            updatePart(PartModel.fromJson(update["new"], this));
+            updatePart(PartModel.fromJson(update["new"], this),
+                updateParent: true);
           else
             updateStatus(StatusModel.fromJson(update["new"], this));
         }
         yield update;
       }
   }
+  }
 
   void updatePart(PartModel part, {bool updateParent = false}) {
-    if (parts.containsKey(part.id)) parts[part.id].updateFromJson(part.toJson());
-    else parts[part.id] = part;
+    if (parts.containsKey(part.id))
+      parts[part.id].updateFromJson(part.toJson());
+    else
+      parts[part.id] = part;
     if (updateParent) parts[part.parentID]?.children?.add(part);
   }
 
@@ -194,8 +192,10 @@ class Session {
   }
 
   void updateStatus(StatusModel status) {
-    if (statuses.containsKey(status.id)) statuses[status.id].updateFromJson(status.toJson());
-    else statuses[status.id] = status;
+    if (statuses.containsKey(status.id))
+      statuses[status.id].updateFromJson(status.toJson());
+    else
+      statuses[status.id] = status;
   }
 
   void removeStatus(StatusModel status) => statuses.remove(status.id);

@@ -8,7 +8,7 @@ import 'status.dart';
 const discloserTriangleImg = "/disctri";
 const partImg = "/part.png";
 const plusImg = "/plus.png";
-const deleteImg = "/TODO";
+const deleteImg = "/TODOgettrashcanimage"; // TODO
 const loadingAnim = "/loading.png";
 
 class PartHtml {
@@ -73,7 +73,7 @@ class PartHtml {
               "Are you sure you would like to delete ${model.name} and all of its subparts?"))
             return;
           try {
-            await session.update(model.toJson(), model, UpdateType.delete);
+            await session.update(model, UpdateType.delete);
           } catch (ex) {
             CustomAlert(Alert.error, ex.toString());
           }
@@ -85,12 +85,11 @@ class PartHtml {
         try {
           final Map<String, dynamic> json = model.toJson();
           final updateModel = PartModel.fromJson(json, session);
-          await session.update(
-              json..["id"] = oldID, updateModel, UpdateType.patch);
+          await session.update(updateModel, UpdateType.patch);
         } catch (e) {
-          status.selectID(oldID);
           CustomAlert(Alert.warning, "Failed to update status of part ${model.name}. Reverting to previous Status.");
           CustomAlert(Alert.error, e.toString());
+          status.selectID(oldID);
         }
       }))
           .elem
@@ -115,7 +114,7 @@ class PartHtml {
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
-      await session.update(model.toJson(), PartModel.fromJson(json, session),
+      await session.update(PartModel.fromJson(json, session),
           newPart ? UpdateType.create : UpdateType.patch);
       modal.close();
     },

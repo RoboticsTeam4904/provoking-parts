@@ -15,7 +15,7 @@ class FetchInitOptions {
   FetchInitOptions(
       {String method,
       Map<String, String> headers,
-      Uint8List body,
+      ByteBuffer body,
       String credentials,
       String cache})
       : _options = {
@@ -66,16 +66,16 @@ class FetchClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final body = await request.finalize().toBytes();
-
+    print("${request.url}: $body");
     final response = await _fetch(
         request.url.toString(),
         FetchInitOptions(
             method: request.method,
             headers: request.headers,
-            body: body.isEmpty ? null : body,
+            body: body.isEmpty ? null : body.buffer,
             credentials: 'same-origin',
             cache: 'no-store'));
-
+    
     if (response.body == null) {
       throw UnsupportedError(
           'Firefox does not currently support the Fetch API by default. '

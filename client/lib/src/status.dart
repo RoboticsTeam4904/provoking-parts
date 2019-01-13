@@ -112,11 +112,14 @@ class StatusDropdown extends InputField<int> {
     selectedElement?.style?.display = "";
     selectedContainer.children = [newSelectedElement.clone(true)];
     selectedElement = newSelectedElement..style.display = "none";
-   if (onChange != null) onChange(oldSelectedID, newSelectedID);
+    if (onChange != null) onChange(oldSelectedID, newSelectedID);
   }
 
-  void selectID(int newSelectedID) => select(
+  void selectID(int newSelectedID) {
+    if (newSelectedID == null) return;
+    select(
       optionsContainer.querySelector("#status$newSelectedID"), newSelectedID);
+  }
 
   void addOption(StatusHtml newOption) {
     final Element elem = newOption.elem.clone(true);
