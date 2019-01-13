@@ -8,6 +8,7 @@ import 'status.dart';
 const discloserTriangleImg = "/disctri";
 const partImg = "/part.png";
 const plusImg = "/plus.png";
+const deleteImg = "/TODO";
 const loadingAnim = "/loading.png";
 
 class PartHtml {
@@ -20,10 +21,9 @@ class PartHtml {
   bool childrenDisplayed = false;
   bool debug;
 
-  PartHtml(this.model, this.modal, this.session,
-      {bool topLevel = false, this.debug = false}) {
+  PartHtml(this.model, this.modal, this.session, {this.debug = false}) {
     if (debug) return;
-    fullElem(topLevel);
+    fullElem(model.parentID == null);
   }
 
   DivElement fullElem(bool topLevel) => elem = DivElement()
@@ -62,47 +62,65 @@ class PartHtml {
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
-          displayPartMenu(
-              newPart: true, defaultJson: {"parentID": model.parentID});
+          displayPartMenu(newPart: true);
           e.stopPropagation();
+        }),
+      ImageElement(src: deleteImg, width: 20, height: 20)
+        ..className = "delete"
+        ..onClick.listen((e) async {
+          e.stopPropagation();
+          if (model.children.isNotEmpty) if (!window.confirm(
+              "Are you sure you would like to delete ${model.name} and all of its subparts?"))
+            return;
+          try {
+            await session.update(model.toJson(), model, UpdateType.delete);
+          } catch (ex) {
+            CustomAlert(Alert.error, ex.toString());
+          }
         }),
       (status = StatusDropdown("status",
               session.statuses.values.map((s) => StatusHtml(s)).toList(),
-              selectedStatus: StatusHtml.fromID(model.statusID, session)))
-          .elem,
+              selectedStatus: StatusHtml.fromID(model.statusID, session),
+              onChange: (oldID, newID) async {
+        try {
+          final Map<String, dynamic> json = model.toJson();
+          final updateModel = PartModel.fromJson(json, session);
+          await session.update(
+              json..["id"] = oldID, updateModel, UpdateType.patch);
+        } catch (e) {
+          status.selectID(oldID);
+          CustomAlert(Alert.warning, "Failed to update status of part ${model.name}. Reverting to previous Status.");
+          CustomAlert(Alert.error, e.toString());
+        }
+      }))
+          .elem
     ]);
 
-  void displayPartMenu(
-      {bool newPart = false, Map<String, dynamic> defaultJson}) {
-    modal.show(EditMenu("Edit Part #${model.id}", [
-      DefaultInput("text", "name", "Name", defaultValue: newPart ? "" : model.name,),
+  void displayPartMenu({bool newPart = false}) {
+    modal.show(EditMenu(newPart ? "New part" : "Editing ${model.name}", [
+      DefaultInput(
+        "text",
+        "name",
+        "Name",
+        defaultValue: newPart ? "" : model.name,
+      ),
       IntInput("quantity", "Quantity",
           defaultValue: newPart ? "" : model.quantity,
           customInputValidation: (q) {
         if (q.value < 0)
           throw const FormatException("You must enter a natural number");
       }),
-      StatusDropdown(
-          "statusID", session.statuses.values.map((s) => StatusHtml(s)).toList(),
+      StatusDropdown("statusID",
+          session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
-      try {
-        var p;
-        try {
-          p = PartModel.fromJson(json, session);
-        } catch (e) {
-          CustomAlert(Alert.error, "c $e");
-        }
-        await session.update(p,
-            newPart ? UpdateType.create : UpdateType.patch);
-        modal.close();
-      } catch (e) {
-        CustomAlert(Alert.error, "b $e");
-      }
-    }, defaultJson: defaultJson ?? {}, onCancel: modal.close)
+      await session.update(model.toJson(), PartModel.fromJson(json, session),
+          newPart ? UpdateType.create : UpdateType.patch);
+      modal.close();
+    },
+            defaultJson: newPart ? {"parentID": model.id} : model.toJson(),
+            onCancel: modal.close)
         .elem);
   }
-
-  void update() => elem.children.first = isolatedElem();
 }

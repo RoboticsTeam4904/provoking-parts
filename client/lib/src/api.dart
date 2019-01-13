@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:equatable/equatable.dart';
+import 'package:http/browser_client.dart';
+
+var a = BrowserClient();
 
 const endpoint = "http://parts.botprovoking.org/api";
 const clientID =
@@ -15,6 +18,8 @@ abstract class Model extends Equatable {
   Model(List props) : super(props);
 
   Map<String, dynamic> toJson();
+
+  void updateFromJson(Map<String, dynamic> updateJson);
 }
 
 class PartModel extends Model {
@@ -39,12 +44,21 @@ class PartModel extends Model {
           json["parentID"], session);
 
   @override
-  Map<String, dynamic> toJson() {
-    final json = {"name": name, "quantity": quantity, "statusID": statusID};
-    if (parentID != null) json["parentID"] = parentID;
-    if (id != null) json["id"] = id;
-    return json;
+  void updateFromJson(Map<String, dynamic> updateJson) {
+    if (updateJson["name"] != null) name = updateJson["name"];
+    if (updateJson["statusID"] != null) statusID = updateJson["statusID"];
+    if (updateJson["quantity"] != null) quantity = updateJson["quantity"];
+    if (updateJson["parentID"] != null) parentID = updateJson["parentID"];
   }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "parentID": parentID,
+        "name": name,
+        "quantity": quantity,
+        "statusID": statusID
+      };
 }
 
 class StatusModel extends Model {
@@ -64,10 +78,12 @@ class StatusModel extends Model {
       StatusModel(json["label"], json["id"], json["color"], session);
 
   @override
-  Map<String, dynamic> toJson() {
-    final json = {"label": label, "color": color};
-    if (id != null) json["id"] = id;
-    return json;
+  Map<String, dynamic> toJson() => {"label": label, "color": color, "id": id};
+
+  @override
+  void updateFromJson(Map<String, dynamic> updateJson) {
+    if (updateJson["label"] != null) label = updateJson["label"];
+    if (updateJson["color"] != null) color = updateJson["color"];
   }
 }
 
@@ -75,8 +91,9 @@ class Session {
   final Client client;
   Map<int, StatusModel> statuses = {};
   Map<int, PartModel> parts = {};
+  void Function(Map m) onUpdate;
 
-  Session([Client client]) : client = client ?? Client();
+  Session(this.onUpdate, [Client client]) : client = client ?? Client();
 
   Future<void> init() async {
     final resp = await client.get("$endpoint/init");
@@ -87,20 +104,26 @@ class Session {
 
     if (resp.statusCode >= 200 && resp.statusCode < 300) {
       final Map<String, dynamic> initJson = jsonDecode(resp.body);
-      for (Map<String, dynamic> statusJson in initJson["statuses"])
+      for (final statusJson in initJson["statuses"])
         updateStatus(StatusModel.fromJson(statusJson, this));
-      for (Map<String, dynamic> partJson in initJson["parts"])
+      for (final partJson in initJson["parts"])
         updatePart(PartModel.fromJson(partJson, this));
-      for (PartModel part in parts.values)
+      for (final part in parts.values)
         parts[part.parentID]?.children?.add(part);
-
+      parts.removeWhere((_, p) =>
+        (!parts.containsKey(p.parentID) && p.parentID != null) || !statuses.containsKey(p.statusID)
+      ); //TODO
       return;
     }
 
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<void> update(Model model, UpdateType updateType) async {
+  Future<void> update(Map old, Model model, UpdateType updateType) async {
+    final Map<String, dynamic> updateJson = {
+      "model": model.endpoint == "Statuses" ? "Status" : "Part"
+    };
+    if (updateType != UpdateType.create) updateJson["old"] = old;
     final url = "$endpoint/${model.endpoint}/${model.id ?? ""}";
     Response resp;
     switch (updateType) {
@@ -120,13 +143,17 @@ class Session {
       default:
         throw UnimplementedError("Something really bad hapenned :(");
     }
-    if (resp.statusCode >= 200 && resp.statusCode < 300) return;
-    throw Exception(
-        "Failed to update at $url: ${resp.statusCode}: ${resp.body}");
+    if (!(resp.statusCode >= 200 && resp.statusCode < 300))
+      throw Exception(
+          "Failed to $updateType at $url: ${resp.statusCode}: ${resp.body}");
+    if (updateType != UpdateType.delete) {
+      updateJson["new"] = jsonDecode(resp.body);
+    }
+    onUpdate(updateJson);
   }
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
-    final StreamedResponse resp =
+    final resp =
         await client.send(Request("GET", Uri.parse("$endpoint/updates")));
     if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
       throw Exception(await resp.stream.bytesToString());
@@ -155,10 +182,21 @@ class Session {
       }
   }
 
-  void updatePart(PartModel part) {
-    parts[part.id] = part;
-    parts[part.parentID]?.children?.add(part);
+  void updatePart(PartModel part, {bool updateParent = false}) {
+    if (parts.containsKey(part.id)) parts[part.id].updateFromJson(part.toJson());
+    else parts[part.id] = part;
+    if (updateParent) parts[part.parentID]?.children?.add(part);
   }
 
-  void updateStatus(StatusModel status) => statuses[status.id] = status;
+  void removePart(PartModel part) {
+    parts.remove(part.id);
+    parts[part.parentID]?.children?.remove(part);
+  }
+
+  void updateStatus(StatusModel status) {
+    if (statuses.containsKey(status.id)) statuses[status.id].updateFromJson(status.toJson());
+    else statuses[status.id] = status;
+  }
+
+  void removeStatus(StatusModel status) => statuses.remove(status.id);
 }

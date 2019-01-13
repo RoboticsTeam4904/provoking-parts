@@ -158,23 +158,23 @@ void main() {
         contains(StatusModel.fromJson(updatesJson[1]["new"], session)));
   });
 
-  test("correctly formats and sends updates", () async {
-    await session.update(PartModel.fromJson(sessionJson["parts"][0], session),
-        UpdateType.delete);
-    await session.update(
-        PartModel.fromJson(sessionJson["parts"][1], session), UpdateType.patch);
-    await session.update(
-        PartModel("test", 0, null, 1, null, session), UpdateType.create);
+  // test("correctly formats and sends updates", () async {
+  //   await session.update(PartModel.fromJson(sessionJson["parts"][0], session),
+  //       UpdateType.delete);
+  //   await session.update(
+  //       PartModel.fromJson(sessionJson["parts"][1], session), UpdateType.patch);
+  //   await session.update(
+  //       PartModel("test", 0, null, 1, null, session), UpdateType.create);
 
-    await session.update(
-        StatusModel.fromJson(sessionJson["statuses"][0], session),
-        UpdateType.delete);
-    await session.update(
-        StatusModel.fromJson(sessionJson["statuses"][1], session),
-        UpdateType.patch);
-    await session.update(
-        StatusModel("test", null, 0xffffff, session), UpdateType.create);
-  });
+  //   await session.update(
+  //       StatusModel.fromJson(sessionJson["statuses"][0], session),
+  //       UpdateType.delete);
+  //   await session.update(
+  //       StatusModel.fromJson(sessionJson["statuses"][1], session),
+  //       UpdateType.patch);
+  //   await session.update(
+  //       StatusModel("test", null, 0xffffff, session), UpdateType.create);
+  // });
 }
 
 Response makeMockClientUpdateResponse(request, int id,

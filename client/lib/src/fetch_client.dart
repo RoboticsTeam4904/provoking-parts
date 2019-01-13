@@ -32,6 +32,7 @@ class FetchInitOptions {
 @JS('Response')
 class FetchResponse {
   external int get status;
+  external String get type;
   external ReadableStream get body;
 }
 
@@ -75,7 +76,9 @@ class FetchClient extends BaseClient {
             credentials: 'same-origin',
             cache: 'no-store'));
 
+    print(response.type);
     final responseStream = _readFromStreamReader(response.body.getReader());
+    print("hola matey");
     return StreamedResponse(responseStream, response.status, request: request);
   }
 

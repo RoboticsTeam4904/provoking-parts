@@ -25,7 +25,8 @@ class StatusHtml {
         ..text = model.label,
       colorElem = DivElement()
         ..className = "color"
-        ..style.backgroundColor = "#${model.color.toRadixString(16)}"
+        ..style.backgroundColor =
+            "#${model.color.toRadixString(16).padLeft(6, '0')}"
     ]);
 
   static void updateStatusElement(Element elem, StatusModel model) {
@@ -45,13 +46,14 @@ class StatusDropdown extends InputField<int> {
   DivElement optionsContainer;
   DivElement selectedContainer;
   Element selectedElement;
-  Function(int id) onChange;
+  void Function(int oldID, int newID) onChange;
   int selectedID;
   @override
   int get value => selectedID;
 
   factory StatusDropdown(String name, List<StatusHtml> statuses,
-      {StatusHtml selectedStatus, Function(int id) onChange}) {
+      {StatusHtml selectedStatus,
+      void Function(int oldID, int newID) onChange}) {
     DivElement selectedContainer;
     DivElement optionsContainer;
     Element selectedElement;
@@ -67,7 +69,7 @@ class StatusDropdown extends InputField<int> {
         elem,
         selectedStatus,
         statuses,
-        onChange ?? (_) {},
+        onChange,
         optionsContainer,
         selectedContainer,
         selectedElement);
@@ -105,12 +107,16 @@ class StatusDropdown extends InputField<int> {
   }
 
   void select(Element newSelectedElement, int newSelectedID) {
+    final oldSelectedID = selectedID;
     selectedID = newSelectedID;
     selectedElement?.style?.display = "";
     selectedContainer.children = [newSelectedElement.clone(true)];
     selectedElement = newSelectedElement..style.display = "none";
-    onChange(newSelectedID);
+   if (onChange != null) onChange(oldSelectedID, newSelectedID);
   }
+
+  void selectID(int newSelectedID) => select(
+      optionsContainer.querySelector("#status$newSelectedID"), newSelectedID);
 
   void addOption(StatusHtml newOption) {
     final Element elem = newOption.elem.clone(true);

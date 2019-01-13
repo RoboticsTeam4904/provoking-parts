@@ -113,13 +113,17 @@ img {
   cursor: pointer;
 }
 
-.part .status {
+.part .statusDropdown .selected {
   float: right;
   margin-right: 10px;
   padding-right: 3px;
   padding-left: 3px;
   padding-top: 1px;
   border-radius: 10px;
+}
+
+.part .statusDropdown .options {
+  font-size: 12px;
 }
 
 .part .new {
@@ -133,7 +137,22 @@ img {
   background-color: #f0f0f0;
 }
 
-.addPart:hover {
+.part .new:hover {
+  background-color: #ffffff;
+}
+
+.part .delete {
+  float: right;
+  margin-right: 15px;
+  margin-left: 2px;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  padding: 2px;
+  background-color: #f0f0f0;
+}
+
+.part .delete:hover {
   background-color: #ffffff;
 }
 
