@@ -89,12 +89,17 @@ class EventStream: ResponseEncodable {
 
     @discardableResult
     func write(_ data: Data = Data()) -> Future<Void> {
+        if isClosed {
+            return stream.eventLoop.future()
+        }
+
         var contentBuffer = allocator.buffer(capacity: data.count + 1)
         contentBuffer.write(bytes: data)
         contentBuffer.write(staticString: "\n")
 
         return stream.eventLoop.submit {
             self.stream.write(.chunk(contentBuffer))
+                .then { self.stream.write(.end) }
         }.then { $0 }
     }
 

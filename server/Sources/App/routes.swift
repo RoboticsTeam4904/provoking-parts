@@ -14,8 +14,8 @@ public func routes(_ router: Router) throws {
         return try req.client().get(url).flatMap { res in
             return try res.content.decode(GoogleProfile.self)
                 .flatMap { profile in
-                try req.session()["id"] = profile.id
-                return profile.save(on: req).map { _ in
+                try req.session()["id"] = profile.id!
+                return profile.create(on: req).map { _ in
                     req.redirect(to: "/")
                 }
             }
