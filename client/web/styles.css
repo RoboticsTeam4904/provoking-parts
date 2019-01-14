@@ -122,8 +122,18 @@ img {
   border-radius: 10px;
 }
 
+.part .statusDropdown {
+  float: right;
+}
+
 .part .statusDropdown .options {
   font-size: 12px;
+  position: fixed;
+  margin-top: 25px;
+  padding: 8px;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  background-color: #f0f0f0;
 }
 
 .part .new {
