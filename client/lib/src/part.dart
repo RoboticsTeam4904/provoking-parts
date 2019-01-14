@@ -70,7 +70,7 @@ class PartHtml {
         ..className = "delete"
         ..onClick.listen((e) async {
           e.stopPropagation();
-          if (model.children.isNotEmpty) if (!window.confirm(
+          if (!window.confirm(
               "Are you sure you would like to delete ${model.name} and all of its subparts?"))
             return;
           try {
