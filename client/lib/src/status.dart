@@ -80,7 +80,7 @@ class StatusDropdown extends InputField<int> {
       : super(name, elem) {
     selectedContainer.onClick.listen((e) {
       e.stopPropagation();
-      optionsContainer.style.display = "";
+      if (!optionsDisplayed) optionsContainer.style.display = "";
       optionsDisplayed = true;
       StreamSubscription closeOnNextClick;
       closeOnNextClick = document.onClick.listen((_) {
