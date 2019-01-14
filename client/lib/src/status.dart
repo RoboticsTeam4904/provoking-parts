@@ -96,7 +96,7 @@ class StatusDropdown extends InputField<int> {
     if (selectedStatus != null)
       select(selectedElement, selectedStatus.model.id, callOnChange: false);
     else
-      selectedContainer.children = [SpanElement()..text = "Choose..."];
+      selectedContainer.children = [SpanElement()..text = "Choose a status..."];
   }
 
   void select(Element newSelectedElement, int newSelectedID,
