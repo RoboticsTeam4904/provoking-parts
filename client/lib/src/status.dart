@@ -80,8 +80,8 @@ class StatusDropdown extends InputField<int> {
       : super(name, elem) {
     selectedContainer.onClick.listen((e) {
       e.stopPropagation();
-      if (!optionsDisplayed) optionsContainer.style.display = "";
-      optionsDisplayed = true;
+      optionsDisplayed = !optionsDisplayed;
+      optionsContainer.style.display = optionsDisplayed ? "" : "none";
       StreamSubscription closeOnNextClick;
       closeOnNextClick = document.onClick.listen((_) {
         optionsDisplayed = false;
@@ -112,7 +112,8 @@ class StatusDropdown extends InputField<int> {
     selectedElement?.style?.display = "";
     selectedContainer.children = [newSelectedElement.clone(true)];
     selectedElement = newSelectedElement..style.display = "none";
-    if (onChange != null && callOnChange) onChange(oldSelectedID, newSelectedID);
+    if (onChange != null && callOnChange)
+      onChange(oldSelectedID, newSelectedID);
   }
 
   void selectID(int newSelectedID, {bool callOnChange = true}) {

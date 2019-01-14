@@ -2,7 +2,7 @@ import 'dart:html';
 
 enum Alert { error, warning, success }
 
-const closeWindowImg = "/closewindow.png";
+const closeWindowImg = "assets/closewindow.png";
 
 class AlertManager {
   Element alertsContainer;
