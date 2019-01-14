@@ -94,7 +94,7 @@ class PartHtml {
         } catch (e) {
           CustomAlert(Alert.warning, "Failed to update status of part ${model.name}. Reverting to previous Status.");
           CustomAlert(Alert.error, e.toString());
-          status.selectID(oldID);
+          status.selectID(oldID, callOnChange: false);
         }
       }))
           .elem

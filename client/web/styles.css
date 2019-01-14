@@ -119,10 +119,20 @@ img {
   padding: 8px;
 }
 
+.editMenu .errors {
+  color: #fc4949;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
 /* PARTS */
 
 #newTopLevelPart {
   margin: 12px 6px 6px 4px !important;
+}
+
+#newTopLevelPart:hover {
+  cursor: pointer;
 }
 
 #partsList {
@@ -162,7 +172,12 @@ img {
   cursor: pointer;
 }
 
-.statusDropdown .selected {
+.part .statusDropdown {
+  float: right;
+}
+
+.part .statusDropdown .selected {
+  float: right;
   margin-right: 10px;
   padding-right: 3px;
   padding-left: 3px;
@@ -172,33 +187,6 @@ img {
 
 .part .statusDropdown {
   float: right;
-}
-
-.statusDropdown .options {
-  font-size: 12px;
-  position: fixed;
-  padding: 8px;
-  border: 1px solid #aaaaaa;
-  border-radius: 4px;
-  background-color: #f0f0f0;
-}
-
-.statusDropdown .label {
-  margin-right: 4px;
-}
-
-.statusDropdown .label:hover {
-  cursor: pointer;
-}
-
-.statusDropdown .options .status {
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.statusDropdown .options .status:hover {
-  background-color: #dddddd;
-  cursor: pointer;
 }
 
 .part .new {
@@ -247,4 +235,31 @@ img {
   border-style: solid;
   border-width: 1px;
   padding: 0 !important;
+}
+
+.statusDropdown .options {
+  font-size: 12px;
+  position: fixed;
+  padding: 8px;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}
+
+.statusDropdown .label {
+  margin-right: 4px;
+}
+
+.statusDropdown .label:hover {
+  cursor: pointer;
+}
+
+.statusDropdown .options .status {
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.statusDropdown .options .status:hover {
+  background-color: #dddddd;
+  cursor: pointer;
 }
