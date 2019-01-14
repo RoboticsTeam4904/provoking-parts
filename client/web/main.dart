@@ -32,61 +32,63 @@ Future<void> main() async {
   for (final part in htmlParts.values) {
     if (part.model.parentID == null) partsContainer.children.add(part.elem);
   }
-  final updateStream = session.pollForUpdates();
-  // try {
-    await for (final update in updateStream) {
-      print("update $update");
-      if (update["model"] == "Part") {
-        if (update["new"] == null) {
-          final oldID = update["old"]["id"];
-          htmlParts.remove(oldID);
-          partsContainer.querySelector("#part$oldID").remove();
-        } else {
-          if (update["old"] == null) {
-            final newPart =
-                PartHtml(session.parts[update["new"]["id"]], modal, session);
-            htmlParts[newPart.model.id] = newPart;
-            (newPart.model.parentID != null
-                    ? htmlParts[newPart.model.parentID].childrenContainer
-                    : partsContainer)
-                .children
-                .add(newPart.elem);
+  while (true) {
+    try {
+      final updateStream = session.pollForUpdates();
+      await for (final update in updateStream) {
+        print("update $update");
+        if (update["model"] == "Part") {
+          if (update["new"] == null) {
+            final oldID = update["old"]["id"];
+            htmlParts.remove(oldID);
+            partsContainer.querySelector("#part$oldID").remove();
           } else {
-            final newPart = htmlParts[update["new"]["id"]];
-            newPart.elem.children.first = newPart.isolatedElem();
-            if (update["old"]["parentID"] != update["new"]["parentID"]) {
-              newPart.elem.remove();
+            if (update["old"] == null) {
+              final newPart =
+                  PartHtml(session.parts[update["new"]["id"]], modal, session);
+              htmlParts[newPart.model.id] = newPart;
               (newPart.model.parentID != null
                       ? htmlParts[newPart.model.parentID].childrenContainer
                       : partsContainer)
                   .children
                   .add(newPart.elem);
+            } else {
+              final newPart = htmlParts[update["new"]["id"]];
+              newPart.elem.children.first = newPart.isolatedElem();
+              if (update["old"]["parentID"] != update["new"]["parentID"]) {
+                newPart.elem.remove();
+                (newPart.model.parentID != null
+                        ? htmlParts[newPart.model.parentID].childrenContainer
+                        : partsContainer)
+                    .children
+                    .add(newPart.elem);
+              }
             }
           }
+        } else {
+          if (update["new"] == null)
+            CustomAlert(Alert.error, "pl0x don't do this to me rohan");
+          else if (update["old"] != null) {
+            final newStatus = StatusModel.fromJson(update["new"], session);
+            document.querySelectorAll("#status${newStatus.id}").forEach(
+                (status) => StatusHtml.updateStatusElement(status, newStatus));
+          } else
+            for (final part in htmlParts.values)
+              part.status
+                  .addOption(StatusHtml.fromID(update["new"]["id"], session));
         }
-      } else {
-        if (update["new"] == null)
-          CustomAlert(Alert.error, "pl0x don't do this to me rohan");
-        else if (update["old"] != null) {
-          final newStatus = StatusModel.fromJson(update["new"], session);
-          document.querySelectorAll("#status${newStatus.id}").forEach(
-              (status) => StatusHtml.updateStatusElement(status, newStatus));
-        } else
-          for (final part in htmlParts.values)
-            part.status
-                .addOption(StatusHtml.fromID(update["new"]["id"], session));
       }
+    } catch (e) {
+      print("big sad: $e");
+      // CustomAlert(Alert.error, e.toString());
+      // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
+      // await Future.delayed(Duration(seconds: 3))
+      //     .then((_) => window.location.reload());
+    } finally {
+      // CustomAlert(Alert.error, "The server may have been destroyed?");
+      // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
+      // await Future.delayed(Duration(seconds: 3))
+      //     .then((_) => window.location.reload());
     }
-  // } catch (e) {
-  //   print("big sad: $e");
-  //   // CustomAlert(Alert.error, e.toString());
-  //   // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
-  //   // await Future.delayed(Duration(seconds: 3))
-  //   //     .then((_) => window.location.reload());
-  // } finally {
-  //   // CustomAlert(Alert.error, "The server may have been destroyed?");
-  //   // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
-  //   // await Future.delayed(Duration(seconds: 3))
-  //   //     .then((_) => window.location.reload());
-  // }
+  }
 }

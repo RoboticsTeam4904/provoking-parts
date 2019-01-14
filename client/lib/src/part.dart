@@ -84,7 +84,11 @@ class PartHtml {
               onChange: (oldID, newID) async {
         try {
           final Map<String, dynamic> json = model.toJson();
+          json["statusID"] = status.selectedID;
           final updateModel = PartModel.fromJson(json, session);
+          print("a");
+          print(updateModel.toJson());
+          print(json);
           await session.update(updateModel, UpdateType.patch);
         } catch (e) {
           CustomAlert(Alert.warning, "Failed to update status of part ${model.name}. Reverting to previous Status.");

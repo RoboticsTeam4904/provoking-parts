@@ -175,7 +175,7 @@ class Session {
         }
         yield update;
       }
-  }
+    }
   }
 
   void updatePart(PartModel part, {bool updateParent = false}) {

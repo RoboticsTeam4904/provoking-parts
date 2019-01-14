@@ -64,15 +64,8 @@ class StatusDropdown extends InputField<int> {
         selectedContainer = DivElement()..className = "selected",
         optionsContainer = DivElement()..className = "options"
       ]);
-    return StatusDropdown._internal(
-        name,
-        elem,
-        selectedStatus,
-        statuses,
-        onChange,
-        optionsContainer,
-        selectedContainer,
-        selectedElement);
+    return StatusDropdown._internal(name, elem, selectedStatus, statuses,
+        onChange, optionsContainer, selectedContainer, selectedElement);
   }
 
   StatusDropdown._internal(
@@ -101,24 +94,26 @@ class StatusDropdown extends InputField<int> {
         return optionElem;
       }));
     if (selectedStatus != null)
-      select(selectedElement, selectedStatus.model.id);
+      select(selectedElement, selectedStatus.model.id, callOnChange: false);
     else
       selectedContainer.children = [SpanElement()..text = "Choose..."];
   }
 
-  void select(Element newSelectedElement, int newSelectedID) {
+  void select(Element newSelectedElement, int newSelectedID,
+      {bool callOnChange = true}) {
     final oldSelectedID = selectedID;
     selectedID = newSelectedID;
     selectedElement?.style?.display = "";
     selectedContainer.children = [newSelectedElement.clone(true)];
     selectedElement = newSelectedElement..style.display = "none";
-    if (onChange != null) onChange(oldSelectedID, newSelectedID);
+    if (onChange != null && callOnChange) onChange(oldSelectedID, newSelectedID);
   }
 
-  void selectID(int newSelectedID) {
+  void selectID(int newSelectedID, {bool callOnChange = true}) {
     if (newSelectedID == null) return;
     select(
-      optionsContainer.querySelector("#status$newSelectedID"), newSelectedID);
+        optionsContainer.querySelector("#status$newSelectedID"), newSelectedID,
+        callOnChange: callOnChange);
   }
 
   void addOption(StatusHtml newOption) {
