@@ -151,8 +151,7 @@ class Session {
       throw Exception(await resp.stream.bytesToString());
     }
     String updateBuf = "";
-    await for (final msg in resp.stream.toStringStream()) {
-      print("msg$msg");
+    await for (final msg in resp.stream.toStringStream())
       for (final char in msg.split('')) {
         print("char$char");
         if (char != "\n") {
@@ -175,7 +174,6 @@ class Session {
         }
         yield update;
       }
-    }
   }
 
   void updatePart(PartModel part, {bool updateParent = false}) {

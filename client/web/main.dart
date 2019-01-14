@@ -9,23 +9,19 @@ Future<void> main() async {
     await session.init();
   } on StateError {
     // Redirect to authentication
-    // window.location.pathname = "/google";
+    window.location.pathname = "/google";
     return;
   } catch (e) {
     CustomAlert(Alert.error, "Init error: $e");
   }
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
-  try {
-    final dummyPart = PartHtml(
-        PartModel(null, null, null, 0, null, session), modal, session,
-        debug: true);
-    document.querySelector("#newTopLevelPart").onClick.listen((_) {
-      dummyPart.displayPartMenu(newPart: true);
-    });
-  } catch (e) {
-    CustomAlert(Alert.error, "Dummy part error: $e");
-  }
+  final dummyPart = PartHtml(
+      PartModel(null, null, null, 0, null, session), modal, session,
+      debug: true);
+  document.querySelector("#newTopLevelPart").onClick.listen((_) {
+    dummyPart.displayPartMenu(newPart: true);
+  });
   final partsContainer = document.querySelector("#partsList");
   final htmlParts =
       session.parts.map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
@@ -79,16 +75,11 @@ Future<void> main() async {
         }
       }
     } catch (e) {
-      print("big sad: $e");
-      // CustomAlert(Alert.error, e.toString());
-      // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
-      // await Future.delayed(Duration(seconds: 3))
-      //     .then((_) => window.location.reload());
-    } finally {
-      // CustomAlert(Alert.error, "The server may have been destroyed?");
-      // CustomAlert(Alert.warning, "Reloading page do to fatal error...");
-      // await Future.delayed(Duration(seconds: 3))
-      //     .then((_) => window.location.reload());
+      CustomAlert(Alert.error, e.toString());
+      CustomAlert(Alert.warning, "Reloading page do to fatal error...");
+      CustomAlert(Alert.success, "I refuse to replace 'do' with 'due'");
+      await Future.delayed(Duration(seconds: 3))
+          .then((_) => window.location.reload());
     }
   }
 }
