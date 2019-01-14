@@ -11,7 +11,7 @@ public func routes(_ router: Router) throws {
         let url = URL(string:
             "https://www.googleapis.com/oauth2/v2/userinfo?access_token=\(token)")!
 
-        return try req.().get(url).flatMap { res in
+        return try req.client().get(url).flatMap { res in
             return try res.content.decode(GoogleProfile.self)
                 .flatMap { profile in
                 try req.session()["id"] = profile.id!
