@@ -5,11 +5,12 @@ import 'input.dart';
 import 'modal.dart';
 import 'status.dart';
 
-const discloserTriangleImg = "/disctri";
-const partImg = "/part.png";
-const plusImg = "/plus.png";
-const deleteImg = "/TODOgettrashcanimage"; // TODO
-const loadingAnim = "/loading.png";
+const assetsPath = "/assets";
+const discloserTriangleImg = "$assetsPath/disctri";
+const partImg = "$assetsPath/part.png";
+const plusImg = "$assetsPath/plus.png";
+const deleteImg = "$assetsPath/trashcan.png";
+const loadingAnim = "$assetsPath/loading.png";
 
 class PartHtml {
   Session session;
@@ -58,7 +59,7 @@ class PartHtml {
         ..text = model.name,
       SpanElement()
         ..className = "quantity"
-        ..text = model.quantity.toString(),
+        ..text = "x${model.quantity}",
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
