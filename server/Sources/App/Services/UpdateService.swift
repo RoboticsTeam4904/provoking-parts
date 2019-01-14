@@ -16,13 +16,13 @@ final class UpdateService: Service {
         streams.append(stream)
 
         request.eventLoop
-        .scheduleRepeatedTask(initialDelay: .seconds(5), delay: .seconds(10))
+        .scheduleRepeatedTask(initialDelay: .seconds(0), delay: .seconds(10))
         { task -> Future<Void> in
-            // guard !stream.isClosed else {
+            guard !stream.isClosed else {
                 task.cancel()
                 self.remove(stream: stream)
                 return request.future()
-            //}
+            }
 
             // Write a newline to keep alive.
             let res = stream.write()
@@ -99,6 +99,7 @@ class EventStream: ResponseEncodable {
 
         return stream.eventLoop.submit {
             self.stream.write(.chunk(contentBuffer))
+                .then { self.stream.write(.end) }
         }.then { $0 }
     }
 
