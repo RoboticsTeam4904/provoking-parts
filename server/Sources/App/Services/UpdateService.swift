@@ -16,7 +16,7 @@ final class UpdateService: Service {
         streams.append(stream)
 
         request.eventLoop
-        .scheduleRepeatedTask(initialDelay: .seconds(0), delay: .seconds(10))
+        .scheduleRepeatedTask(initialDelay: .seconds(10), delay: .seconds(10))
         { task -> Future<Void> in
             guard !stream.isClosed else {
                 task.cancel()
