@@ -78,10 +78,16 @@ class StatusDropdown extends InputField<int> {
       this.selectedContainer,
       this.selectedElement)
       : super(name, elem) {
-    elem.onClick.listen((e) {
-      optionsContainer.style.display =
-          (optionsDisplayed = !optionsDisplayed) ? "" : "none";
+    selectedContainer.onClick.listen((e) {
       e.stopPropagation();
+      optionsContainer.style.display = "";
+      optionsDisplayed = true;
+      StreamSubscription closeOnNextClick;
+      closeOnNextClick = document.onClick.listen((_) {
+        optionsDisplayed = false;
+        optionsContainer.style.display = "none";
+        closeOnNextClick.cancel();
+      });
     });
     optionsContainer
       ..style.display = "none"

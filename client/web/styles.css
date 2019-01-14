@@ -189,36 +189,6 @@ img {
   float: right;
 }
 
-<<<<<<< Updated upstream
-=======
-.statusDropdown .options {
-  font-size: 12px;
-  position: fixed;
-  padding: 8px;
-  border: 1px solid #aaaaaa;
-  border-radius: 4px;
-  background-color: #f0f0f0;
-}
-
-.statusDropdown .label {
-  margin-right: 4px;
-}
-
-.statusDropdown .selected span:hover {
-  cursor: pointer;
-}
-
-.statusDropdown .options .status {
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.statusDropdown .options .status:hover {
-  background-color: #dddddd;
-  cursor: pointer;
-}
-
->>>>>>> Stashed changes
 .part .new {
   float: right;
 }
