@@ -176,19 +176,6 @@ img {
   float: right;
 }
 
-.part .statusDropdown .selected {
-  float: right;
-  margin-right: 10px;
-  padding-right: 3px;
-  padding-left: 3px;
-  padding-top: 1px;
-  border-radius: 10px;
-}
-
-.part .statusDropdown {
-  float: right;
-}
-
 .part .new {
   float: right;
 }
@@ -232,6 +219,14 @@ img {
   border-style: solid;
   border-width: 1px;
   padding: 0 !important;
+}
+
+.statusDropdown .selected {
+  margin-right: 10px;
+  padding-right: 3px;
+  padding-left: 3px;
+  padding-top: 1px;
+  border-radius: 10px;
 }
 
 .statusDropdown .options {
