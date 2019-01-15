@@ -41,6 +41,10 @@ final class PartController {
                     part.quantity = quantity
                 }
 
+                if let description = data.description {
+                    part.description = description
+                }
+
                 if let statusID = data.statusID {
                     part.statusID = statusID
                 }
