@@ -50,6 +50,9 @@ class PartHtml {
       SpanElement()
         ..className = "quantity"
         ..text = "x${model.quantity}",
+      SpanElement()
+        ..className = "description"
+        ..text = model.description,
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
@@ -79,26 +82,26 @@ class PartHtml {
           final updateModel = PartModel.fromJson(json, session);
           await session.update(updateModel, UpdateType.patch);
         } catch (e) {
-          CustomAlert(Alert.warning, "Failed to update status of part ${model.name}. Reverting to previous Status.");
+          CustomAlert(Alert.warning,
+              "Failed to update status of part ${model.name}. Reverting to previous Status.");
           CustomAlert(Alert.error, e.toString());
           status.selectID(oldID, callOnChange: false);
         }
       }))
           .elem
     ]);
-  
-  ImageElement disclosureTriangle() =>
-    model.children.isEmpty
-          ? (ImageElement(src: partImg)..className = "icon")
-          : (ImageElement(src: "${disclosureTriangleImg}true.png")
-            ..onClick.listen((e) {
-              childrenContainer.style.display =
-                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-              (e.target as ImageElement).srcset =
-                  "$disclosureTriangleImg${!childrenDisplayed}.png";
-              e.stopPropagation();
-            })
-            ..className = "icon disclosureTri");
+
+  ImageElement disclosureTriangle() => model.children.isEmpty
+      ? (ImageElement(src: partImg)..className = "icon")
+      : (ImageElement(src: "${disclosureTriangleImg}true.png")
+        ..onClick.listen((e) {
+          childrenContainer.style.display =
+              (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+          (e.target as ImageElement).srcset =
+              "$disclosureTriangleImg${!childrenDisplayed}.png";
+          e.stopPropagation();
+        })
+        ..className = "icon disclosureTri");
 
   void displayPartMenu({bool newPart = false}) {
     modal.show(EditMenu(newPart ? "New part" : "Editing ${model.name}", [
@@ -114,6 +117,8 @@ class PartHtml {
         if (q.value < 0)
           throw const FormatException("You must enter a natural number");
       }),
+      DefaultInput("text", "description", "Description",
+          defaultValue: newPart ? "" : model.description),
       StatusDropdown("statusID",
           session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:

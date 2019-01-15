@@ -28,6 +28,7 @@ class PartModel extends Model {
 
   Session session;
   String name;
+  String description;
   List<PartModel> children = [];
   int quantity, parentID, statusID;
   StatusModel get status => session.statuses[statusID];
@@ -35,17 +36,18 @@ class PartModel extends Model {
   @override
   String get endpoint => "parts";
 
-  PartModel(this.name, this.statusID, this.id, this.quantity, this.parentID,
+  PartModel(this.name, this.description, this.statusID, this.id, this.quantity, this.parentID,
       this.session)
       : super([name, statusID, id, quantity, parentID, session]);
 
   factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
-      PartModel(json["name"], json["statusID"], json["id"], json["quantity"],
+      PartModel(json["name"], json["description"], json["statusID"], json["id"], json["quantity"],
           json["parentID"], session);
 
   @override
   void updateFromJson(Map<String, dynamic> updateJson) {
     if (updateJson["name"] != null) name = updateJson["name"];
+    if (updateJson["description"] != null) name = updateJson["name"];
     if (updateJson["statusID"] != null) statusID = updateJson["statusID"];
     if (updateJson["quantity"] != null) quantity = updateJson["quantity"];
     if (updateJson["parentID"] != null) parentID = updateJson["parentID"];
@@ -56,6 +58,7 @@ class PartModel extends Model {
         "id": id,
         "parentID": parentID,
         "name": name,
+        "description": description,
         "quantity": quantity,
         "statusID": statusID
       };
