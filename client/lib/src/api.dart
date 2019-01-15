@@ -107,13 +107,13 @@ class Session {
         updateStatus(StatusModel.fromJson(statusJson, this));
       for (final partJson in initJson["parts"])
         updatePart(PartModel.fromJson(partJson, this));
+      parts = Map.fromEntries(parts.entries.toList()
+        ..sort((part1, part2) => part1.value.name.compareTo(part2.value.name)));
       for (final part in parts.values)
         parts[part.parentID]?.children?.add(part);
       parts.removeWhere((_, p) =>
           (!parts.containsKey(p.parentID) && p.parentID != null) ||
           !statuses.containsKey(p.statusID)); //TODO
-      parts = Map.fromEntries(parts.entries.toList()
-        ..sort((part1, part2) => part1.value.name.compareTo(part2.value.name)));
       return;
     }
 
