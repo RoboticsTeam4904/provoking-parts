@@ -38,21 +38,37 @@ public func routes(_ router: Router) throws {
     }
 
     let api = router.grouped("api")
-    let protected = api.grouped(ImperialMiddleware())
+    
+    let protected = api.grouped(ImperialMiddleware()) { protected in
+        let projectController = ProjectController()
 
-    let partController = PartController()
-    protected.get("parts", use: partController.index)
-    protected.post("parts", use: partController.create)
-    protected.patch("parts", Part.parameter, use: partController.update)
-    protected.delete("parts", Part.parameter, use: partController.delete)
+        let projects = protected.group("projects")
+        projects.get(use: projectController.index)
+        projects.post(use: projectController.create)
+        projects.patch(Project.parameter, use: projectController.update)
+        projects.delete(Project.parameter, use: projectController.delete)
 
-    let statusController = StatusController()
-    protected.get("statuses", use: statusController.index)
-    protected.post("statuses", use: statusController.create)
-    protected.patch("statuses", Status.parameter, use: statusController.update)
-    protected.delete("statuses", Status.parameter, use: statusController.delete)
+        
+        projects.group(Project.parameter) { project in
+            let partController = PartController()
 
-    let updateController = UpdateController()
-    protected.get("init", use: updateController.initialize)
-    protected.get("updates", use: updateController.handle)
+            let parts = project.group("parts")
+            parts.get(use: partController.index)
+            parts.post(use: partController.create)
+            parts.patch(Part.parameter, use: partController.update)
+            parts.delete(Part.parameter, use: partController.delete)
+        }
+
+        let statusController = StatusController()
+
+        let statuses = protected.group("statuses")
+        statuses.get(use: statusController.index)
+        statuses.post(use: statusController.create)
+        statuses.patch(Status.parameter, use: statusController.update)
+        statuses.delete(Status.parameter, use: statusController.delete)
+
+        let updateController = UpdateController()
+        protected.get("init", use: updateController.initialize)
+        protected.get("updates", use: updateController.handle)
+    }
 }

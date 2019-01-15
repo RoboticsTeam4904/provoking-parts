@@ -3,17 +3,19 @@ import FluentPostgreSQL
 
 struct Part: PostgreSQLModel {
     var id: Int?
-    var name: String
-    var quantity: Int
+    var projectID: Int
     var statusID: Int
     var parentID: Int?
+    var name: String
+    var quantity: Int
 }
 
 struct PartUpdate: Content {
     var name: String?
-    var quantity: Int?
+    var projectID: Int?
     var statusID: Int?
     var parentID: Int?
+    var quantity: Int?
 }
 
 extension Part {
