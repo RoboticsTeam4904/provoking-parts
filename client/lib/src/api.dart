@@ -155,7 +155,6 @@ class Session {
     String updateBuf = "";
     await for (final msg in resp.stream.toStringStream())
       for (final char in msg.split('')) {
-        print("char$char");
         if (char != "\n") {
           updateBuf += char;
           continue;
