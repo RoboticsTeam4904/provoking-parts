@@ -112,6 +112,8 @@ class Session {
       parts.removeWhere((_, p) =>
           (!parts.containsKey(p.parentID) && p.parentID != null) ||
           !statuses.containsKey(p.statusID)); //TODO
+      parts = Map.fromEntries(parts.entries.toList()
+        ..sort((part1, part2) => part1.value.name.compareTo(part2.value.name)));
       return;
     }
 
