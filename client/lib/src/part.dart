@@ -6,7 +6,7 @@ import 'modal.dart';
 import 'status.dart';
 
 const assetsPath = "/assets";
-const discloserTriangleImg = "$assetsPath/disctri";
+const disclosureTriangleImg = "$assetsPath/disctri";
 const partImg = "$assetsPath/part.png";
 const plusImg = "$assetsPath/plus.png";
 const deleteImg = "$assetsPath/trashcan.png";
@@ -43,17 +43,7 @@ class PartHtml {
     ..className = "part"
     ..onClick.listen((_) => displayPartMenu())
     ..children.addAll([
-      model.children.isEmpty
-          ? (ImageElement(src: partImg)..className = "icon")
-          : (ImageElement(src: "${discloserTriangleImg}true.png")
-            ..onClick.listen((e) {
-              childrenContainer.style.display =
-                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-              (e.target as ImageElement).srcset =
-                  "$discloserTriangleImg${!childrenDisplayed}.png";
-              e.stopPropagation();
-            })
-            ..className = "icon disclosureTri"),
+      disclosureTriangle(),
       SpanElement()
         ..className = "name"
         ..text = model.name,
@@ -96,6 +86,19 @@ class PartHtml {
       }))
           .elem
     ]);
+  
+  ImageElement disclosureTriangle() =>
+    model.children.isEmpty
+          ? (ImageElement(src: partImg)..className = "icon")
+          : (ImageElement(src: "${disclosureTriangleImg}true.png")
+            ..onClick.listen((e) {
+              childrenContainer.style.display =
+                  (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+              (e.target as ImageElement).srcset =
+                  "$disclosureTriangleImg${!childrenDisplayed}.png";
+              e.stopPropagation();
+            })
+            ..className = "icon disclosureTri");
 
   void displayPartMenu({bool newPart = false}) {
     modal.show(EditMenu(newPart ? "New part" : "Editing ${model.name}", [

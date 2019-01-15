@@ -39,26 +39,25 @@ Future<void> main() async {
             htmlParts.remove(oldID);
             partsContainer.querySelector("#part$oldID").remove();
           } else {
+            PartHtml newPart;
             if (update["old"] == null) {
-              final newPart =
+              newPart =
                   PartHtml(session.parts[update["new"]["id"]], modal, session);
+            } else {
+              newPart = htmlParts[update["new"]["id"]];
+              newPart.elem.children.first = newPart.isolatedElem();
+              if (update["old"]["parentID"] != newPart.model.parentID)
+                newPart.elem.remove();
+            }
+            if (update["old"]["parentID"] != newPart.model.parentID || update["old"] == null) {
+              final parentPart = htmlParts[newPart.model.parentID];
               htmlParts[newPart.model.id] = newPart;
               (newPart.model.parentID != null
-                      ? htmlParts[newPart.model.parentID].childrenContainer
+                      ? parentPart.childrenContainer
                       : partsContainer)
                   .children
                   .add(newPart.elem);
-            } else {
-              final newPart = htmlParts[update["new"]["id"]];
-              newPart.elem.children.first = newPart.isolatedElem();
-              if (update["old"]["parentID"] != update["new"]["parentID"]) {
-                newPart.elem.remove();
-                (newPart.model.parentID != null
-                        ? htmlParts[newPart.model.parentID].childrenContainer
-                        : partsContainer)
-                    .children
-                    .add(newPart.elem);
-              }
+              parentPart.elem.children. first = parentPart.disclosureTriangle();
             }
           }
         } else {
