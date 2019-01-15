@@ -49,10 +49,10 @@ Future<void> main() async {
               if (update["old"]["parentID"] != newPart.model.parentID)
                 newPart.elem.remove();
             }
-            if (update["old"]["parentID"] != newPart.model.parentID || update["old"] == null) {
+            if (update["old"] == null || update["old"]["parentID"] != newPart.model.parentID) {
               final parentPart = htmlParts[newPart.model.parentID];
               htmlParts[newPart.model.id] = newPart;
-              (newPart.model.parentID != null
+              (parentPart != null
                       ? parentPart.childrenContainer
                       : partsContainer)
                   .children
