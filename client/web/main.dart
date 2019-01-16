@@ -76,8 +76,7 @@ Future<void> main() async {
       }
     } catch (e) {
       CustomAlert(Alert.error, e.toString());
-      CustomAlert(Alert.warning, "Reloading page do to fatal error...");
-      CustomAlert(Alert.success, "I refuse to replace 'do' with 'due'");
+      CustomAlert(Alert.warning, "Reloading page deux to fatal error...");
       await Future.delayed(Duration(seconds: 3))
           .then((_) => window.location.reload());
     }

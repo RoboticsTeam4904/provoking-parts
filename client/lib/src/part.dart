@@ -33,14 +33,14 @@ class PartHtml {
     ..id = "part${model.id}"
     ..style.paddingLeft = "${topLevel ? 0 : 20}px"
     ..children.addAll([
-      part = isolatedElem(),
+      isolatedElem(),
       childrenContainer = DivElement()
         ..className = "partChildren"
         ..children
             .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
     ]);
 
-  DivElement isolatedElem() => DivElement()
+  DivElement isolatedElem() => part = DivElement()
     ..className = "part"
     ..onClick.listen((_) => displayPartMenu())
     ..children.addAll([

@@ -167,7 +167,7 @@ class Session {
         updateBuf = "";
 
         if (update["new"] == null) {
-          if (update["model"] == "Parts")
+          if (update["model"] == "Part")
             removePart(parts[update["old"]["id"]]);
           else
             removeStatus(statuses[update["old"]["id"]]);
