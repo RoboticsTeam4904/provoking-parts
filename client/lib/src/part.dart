@@ -116,7 +116,7 @@ class PartHtml {
       }),
       DefaultInput("text", "description", "Description",
           defaultValue: newPart ? "" : model.description,
-          overrideDefaultValidation: false),
+          overrideDefaultValidation: true),
       StatusDropdown("statusID",
           session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
