@@ -169,14 +169,16 @@ class Session {
         if (update["new"] == null) {
           if (update["model"] == "Part")
             removePart(parts[update["old"]["id"]]);
-          else
+          else if (update["model"] == "Status")
             removeStatus(statuses[update["old"]["id"]]);
+          else throw UnimplementedError("The server sent me a model I didn't understnad");
         } else {
           if (update["model"] == "Part")
             updatePart(PartModel.fromJson(update["new"], this),
                 updateParent: true);
-          else
+          else if (update["model"] == "Status")
             updateStatus(StatusModel.fromJson(update["new"], this));
+          else throw UnimplementedError("The server sent me a model I didn't understnad");
         }
         yield update;
       }
