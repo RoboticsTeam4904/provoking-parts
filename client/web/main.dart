@@ -57,7 +57,7 @@ Future<void> main() async {
                   .children
                   .add(newPart.elem);
               if (parentPart != null)
-                parentPart.elem.children.first =
+                parentPart.part.children.first =
                     parentPart.disclosureTriangle();
             }
           }

@@ -15,9 +15,10 @@ const loadingAnim = "$assetsPath/loading.png";
 class PartHtml {
   Session session;
   DivElement elem;
+  DivElement part;
+  DivElement childrenContainer;
   PartModel model;
   Modal modal;
-  DivElement childrenContainer;
   StatusDropdown status;
   bool childrenDisplayed = false;
   bool debug;
@@ -32,7 +33,7 @@ class PartHtml {
     ..id = "part${model.id}"
     ..style.paddingLeft = "${topLevel ? 0 : 20}px"
     ..children.addAll([
-      isolatedElem(),
+      part = isolatedElem(),
       childrenContainer = DivElement()
         ..className = "partChildren"
         ..children
