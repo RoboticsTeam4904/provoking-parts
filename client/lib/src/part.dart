@@ -17,6 +17,7 @@ class PartHtml {
   DivElement elem;
   DivElement part;
   DivElement childrenContainer;
+  List<PartHtml> children;
   PartModel model;
   Modal modal;
   StatusDropdown status;
@@ -37,7 +38,10 @@ class PartHtml {
       childrenContainer = DivElement()
         ..className = "partChildren"
         ..children
-            .addAll(model.children.map((m) => PartHtml(session.parts[m], modal, session).elem))
+            .addAll(model.children.map((m) {
+              final part = PartHtml(session.parts[m], modal, session);
+              children.add(part);
+            }))
     ]);
 
   DivElement isolatedElem() => part = DivElement()

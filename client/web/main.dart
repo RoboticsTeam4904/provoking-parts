@@ -23,11 +23,12 @@ Future<void> main() async {
     dummyPart.displayPartMenu(newPart: true);
   });
   final partsContainer = document.querySelector("#partsList");
-  final htmlParts =
-      session.parts.map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
-  for (final part in htmlParts.values) {
-    if (part.model.parentID == null) partsContainer.children.add(part.elem);
-  }
+  final htmlParts = Map.fromEntries(
+          session.parts.entries.where((m) => m.value.parentID != null))
+      .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
+  for (final part in htmlParts.values) partsContainer.children.add(part.elem);
+  for (final part in htmlParts.values)
+    htmlParts.addEntries(part.children.map((p) => MapEntry(p.model.id, p)));
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
@@ -44,7 +45,7 @@ Future<void> main() async {
             print("patching part");
             PartHtml newPart;
             if (update["old"] == null) {
-              newPart =
+              newPart = htmlParts[newPart.model.id] =
                   PartHtml(session.parts[update["new"]["id"]], modal, session);
             } else {
               newPart = htmlParts[update["new"]["id"]];
@@ -57,8 +58,8 @@ Future<void> main() async {
                 update["old"]["parentID"] != newPart.model.parentID) {
               print("(re) adding part to dom");
               final parentPart = htmlParts[newPart.model.parentID];
-              print("correct parent part? ${querySelector("#part$newPart.model.parentID") == parentPart.elem}");
-              htmlParts[newPart.model.id] = newPart;
+              print(
+                  "correct parent part? ${querySelector("#part$newPart.model.parentID") == parentPart.elem}");
               (parentPart?.childrenContainer ?? partsContainer)
                   .children
                   .add(newPart.elem);
@@ -67,7 +68,7 @@ Future<void> main() async {
                     parentPart.disclosureTriangle();
             }
           }
-        print(session.parts.map((i, p) => MapEntry(i, p.toJson())));
+          print(session.parts.map((i, p) => MapEntry(i, p.toJson())));
         } else {
           if (update["new"] == null)
             CustomAlert(Alert.error, "pl0x don't do this to me rohan");
