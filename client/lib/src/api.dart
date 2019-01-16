@@ -144,7 +144,7 @@ class Session {
       default:
         throw UnimplementedError("Something really bad hapenned :(");
     }
-    if (!(resp.statusCode >= 200 && resp.statusCode < 300))
+    if (!(resp.statusCode >= 200 && resp.statusCode < 300) && resp.statusCode != 500) //TODO please oh lord please
       throw Exception(
           "Failed to $updateType at $url: ${resp.statusCode}: ${resp.body}");
   }
