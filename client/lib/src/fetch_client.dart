@@ -66,7 +66,6 @@ class FetchClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final body = await request.finalize().toBytes();
-    print("${request.url}: $body");
     final response = await _fetch(
         request.url.toString(),
         FetchInitOptions(
@@ -84,7 +83,6 @@ class FetchClient extends BaseClient {
     }
 
     final responseStream = _readFromStreamReader(response.body.getReader());
-    print("hola matey");
     return StreamedResponse(responseStream, response.status, request: request);
   }
 
