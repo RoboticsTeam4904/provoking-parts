@@ -37,7 +37,7 @@ class PartHtml {
       childrenContainer = DivElement()
         ..className = "partChildren"
         ..children
-            .addAll(model.children.map((m) => PartHtml(m, modal, session).elem))
+            .addAll(model.children.map((m) => PartHtml(session.parts[m], modal, session).elem))
     ]);
 
   DivElement isolatedElem() => part = DivElement()

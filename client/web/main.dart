@@ -34,11 +34,14 @@ Future<void> main() async {
       await for (final update in updateStream) {
         print("update $update");
         if (update["model"] == "Part") {
+          print("updating part");
           if (update["new"] == null) {
             final oldID = update["old"]["id"];
+            print("deleting part $oldID");
+            htmlParts[oldID].elem.remove();
             htmlParts.remove(oldID);
-            partsContainer.querySelector("#part$oldID").remove();
           } else {
+            print("patching part");
             PartHtml newPart;
             if (update["old"] == null) {
               newPart =
@@ -49,8 +52,10 @@ Future<void> main() async {
               if (update["old"]["parentID"] != newPart.model.parentID)
                 newPart.elem.remove();
             }
+            print("new part ${newPart.model.toJson()}");
             if (update["old"] == null ||
                 update["old"]["parentID"] != newPart.model.parentID) {
+              print("(re) adding part to dom");
               final parentPart = htmlParts[newPart.model.parentID];
               htmlParts[newPart.model.id] = newPart;
               (parentPart?.childrenContainer ?? partsContainer)

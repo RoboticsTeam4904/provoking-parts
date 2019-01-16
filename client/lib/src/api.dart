@@ -29,7 +29,7 @@ class PartModel extends Model {
   Session session;
   String name;
   String description;
-  List<PartModel> children = [];
+  List<int> children = [];
   int quantity, parentID, statusID;
   StatusModel get status => session.statuses[statusID];
 
@@ -47,7 +47,8 @@ class PartModel extends Model {
   @override
   void updateFromJson(Map<String, dynamic> updateJson) {
     if (updateJson.containsKey("name")) name = updateJson["name"];
-    if (updateJson.containsKey("description")) description = updateJson["description"];
+    if (updateJson.containsKey("description"))
+      description = updateJson["description"];
     if (updateJson.containsKey("statusID")) statusID = updateJson["statusID"];
     if (updateJson.containsKey("quantity")) quantity = updateJson["quantity"];
     if (updateJson.containsKey("parentID")) parentID = updateJson["parentID"];
@@ -113,7 +114,7 @@ class Session {
       parts = Map.fromEntries(parts.entries.toList()
         ..sort((part1, part2) => part1.value.name.compareTo(part2.value.name)));
       for (final part in parts.values)
-        parts[part.parentID]?.children?.add(part);
+        parts[part.parentID]?.children?.add(part.id);
       parts.removeWhere((_, p) =>
           (!parts.containsKey(p.parentID) && p.parentID != null) ||
           !statuses.containsKey(p.statusID)); //TODO
@@ -171,14 +172,18 @@ class Session {
             removePart(parts[update["old"]["id"]]);
           else if (update["model"] == "Status")
             removeStatus(statuses[update["old"]["id"]]);
-          else throw UnimplementedError("The server sent me a model I didn't understnad");
+          else
+            throw UnimplementedError(
+                "The server sent me a model I didn't understnad");
         } else {
           if (update["model"] == "Part")
             updatePart(PartModel.fromJson(update["new"], this),
                 updateParent: true);
           else if (update["model"] == "Status")
             updateStatus(StatusModel.fromJson(update["new"], this));
-          else throw UnimplementedError("The server sent me a model I didn't understnad");
+          else
+            throw UnimplementedError(
+                "The server sent me a model I didn't understnad");
         }
         yield update;
       }
@@ -189,12 +194,14 @@ class Session {
       parts[part.id].updateFromJson(part.toJson());
     else
       parts[part.id] = part;
-    if (updateParent) parts[part.parentID]?.children?.add(part);
+    if (updateParent &&
+        parts[part.parentID]?.children?.contains(part.id) == false)
+      parts[part.parentID].children.add(part.id);
   }
 
   void removePart(PartModel part) {
     parts.remove(part.id);
-    parts[part.parentID]?.children?.remove(part);
+    parts[part.parentID]?.children?.remove(part.id);
   }
 
   void updateStatus(StatusModel status) {
