@@ -50,9 +50,6 @@ class PartHtml {
       SpanElement()
         ..className = "quantity"
         ..text = "x${model.quantity}",
-      SpanElement()
-        ..className = "description"
-        ..text = model.description,
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
@@ -118,7 +115,8 @@ class PartHtml {
           throw const FormatException("You must enter a natural number");
       }),
       DefaultInput("text", "description", "Description",
-          defaultValue: newPart ? "" : model.description),
+          defaultValue: newPart ? "" : model.description,
+          overrideDefaultValidation: false),
       StatusDropdown("statusID",
           session.statuses.values.map((s) => StatusHtml(s)).toList(),
           selectedStatus:
