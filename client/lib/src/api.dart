@@ -36,21 +36,21 @@ class PartModel extends Model {
   @override
   String get endpoint => "parts";
 
-  PartModel(this.name, this.description, this.statusID, this.id, this.quantity, this.parentID,
-      this.session)
+  PartModel(this.name, this.description, this.statusID, this.id, this.quantity,
+      this.parentID, this.session)
       : super([name, statusID, id, quantity, parentID, session]);
 
   factory PartModel.fromJson(Map<String, dynamic> json, Session session) =>
-      PartModel(json["name"], json["description"], json["statusID"], json["id"], json["quantity"],
-          json["parentID"], session);
+      PartModel(json["name"], json["description"], json["statusID"], json["id"],
+          json["quantity"], json["parentID"], session);
 
   @override
   void updateFromJson(Map<String, dynamic> updateJson) {
-    if (updateJson["name"] != null) name = updateJson["name"];
-    if (updateJson["description"] != null) name = updateJson["name"];
-    if (updateJson["statusID"] != null) statusID = updateJson["statusID"];
-    if (updateJson["quantity"] != null) quantity = updateJson["quantity"];
-    if (updateJson["parentID"] != null) parentID = updateJson["parentID"];
+    if (updateJson.containsKey("name")) name = updateJson["name"];
+    if (updateJson.containsKey("description")) description = updateJson["description"];
+    if (updateJson.containsKey("statusID")) statusID = updateJson["statusID"];
+    if (updateJson.containsKey("quantity")) quantity = updateJson["quantity"];
+    if (updateJson.containsKey("parentID")) parentID = updateJson["parentID"];
   }
 
   @override
@@ -85,8 +85,8 @@ class StatusModel extends Model {
 
   @override
   void updateFromJson(Map<String, dynamic> updateJson) {
-    if (updateJson["label"] != null) label = updateJson["label"];
-    if (updateJson["color"] != null) color = updateJson["color"];
+    if (updateJson.containsKey("label")) label = updateJson["label"];
+    if (updateJson.containsKey("color")) color = updateJson["color"];
   }
 }
 
@@ -144,7 +144,8 @@ class Session {
       default:
         throw UnimplementedError("Something really bad hapenned :(");
     }
-    if (!(resp.statusCode >= 200 && resp.statusCode < 300) && resp.statusCode != 500) //TODO please oh lord please
+    if (!(resp.statusCode >= 200 && resp.statusCode < 300) &&
+        resp.statusCode != 500) //TODO please oh lord please
       throw Exception(
           "Failed to $updateType at $url: ${resp.statusCode}: ${resp.body}");
   }
@@ -165,11 +166,12 @@ class Session {
         final update = jsonDecode(updateBuf);
         updateBuf = "";
 
-        if (update["new"] == null) if (update["model"] != "Status")
-          removePart(parts[update["old"]["id"]]);
-        else
-          removeStatus(statuses[update["old"]["id"]]);
-        else {
+        if (update["new"] == null) {
+          if (update["model"] == "Parts")
+            removePart(parts[update["old"]["id"]]);
+          else
+            removeStatus(statuses[update["old"]["id"]]);
+        } else {
           if (update["model"] == "Part")
             updatePart(PartModel.fromJson(update["new"], this),
                 updateParent: true);

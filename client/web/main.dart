@@ -49,15 +49,16 @@ Future<void> main() async {
               if (update["old"]["parentID"] != newPart.model.parentID)
                 newPart.elem.remove();
             }
-            if (update["old"] == null || update["old"]["parentID"] != newPart.model.parentID) {
+            if (update["old"] == null ||
+                update["old"]["parentID"] != newPart.model.parentID) {
               final parentPart = htmlParts[newPart.model.parentID];
               htmlParts[newPart.model.id] = newPart;
-              (parentPart != null
-                      ? parentPart.childrenContainer
-                      : partsContainer)
+              (parentPart?.childrenContainer ?? partsContainer)
                   .children
                   .add(newPart.elem);
-              if (parentPart != null) parentPart.elem.children.first = parentPart.disclosureTriangle();
+              if (parentPart != null)
+                parentPart.elem.children.first =
+                    parentPart.disclosureTriangle();
             }
           }
         } else {
