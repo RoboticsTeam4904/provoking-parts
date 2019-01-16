@@ -66,6 +66,7 @@ Future<void> main() async {
                     parentPart.disclosureTriangle();
             }
           }
+        print(session.parts.map((i, p) => MapEntry(i, p.toJson())));
         } else {
           if (update["new"] == null)
             CustomAlert(Alert.error, "pl0x don't do this to me rohan");
