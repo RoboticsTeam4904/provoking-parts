@@ -5,6 +5,7 @@ struct Part: PostgreSQLModel {
     var id: Int?
     var name: String
     var quantity: Int
+    var description: String
     var statusID: Int
     var parentID: Int?
 }
@@ -12,6 +13,7 @@ struct Part: PostgreSQLModel {
 struct PartUpdate: Content {
     var name: String?
     var quantity: Int?
+    var description: String?
     var statusID: Int?
     var parentID: Int?
 }

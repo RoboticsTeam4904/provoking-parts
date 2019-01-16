@@ -106,6 +106,7 @@ void main() {
         serializedParts,
         orderedEquals(parts.map((part) => PartModel(
             part["name"],
+            part["description"],
             part["statusID"],
             part["id"],
             part["quantity"],

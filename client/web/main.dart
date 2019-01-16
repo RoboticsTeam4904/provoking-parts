@@ -17,7 +17,7 @@ Future<void> main() async {
   final modal = Modal(
       document.querySelector("#modal"), document.querySelector("#screenCover"));
   final dummyPart = PartHtml(
-      PartModel(null, null, null, 0, null, session), modal, session,
+      PartModel(null, null, null, null, 0, null, session), modal, session,
       debug: true);
   document.querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true);
