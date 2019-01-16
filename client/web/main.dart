@@ -48,7 +48,7 @@ Future<void> main() async {
                   PartHtml(session.parts[update["new"]["id"]], modal, session);
             } else {
               newPart = htmlParts[update["new"]["id"]];
-              newPart.elem.children.first = newPart.isolatedElem();
+              newPart.part.replaceWith(newPart.isolatedElem());
               if (update["old"]["parentID"] != newPart.model.parentID)
                 newPart.elem.remove();
             }
@@ -57,6 +57,7 @@ Future<void> main() async {
                 update["old"]["parentID"] != newPart.model.parentID) {
               print("(re) adding part to dom");
               final parentPart = htmlParts[newPart.model.parentID];
+              print("correct parent part? ${querySelector("#part$newPart.model.parentID") == parentPart.elem}");
               htmlParts[newPart.model.id] = newPart;
               (parentPart?.childrenContainer ?? partsContainer)
                   .children
