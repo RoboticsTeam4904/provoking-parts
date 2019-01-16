@@ -6,6 +6,9 @@ class Modal {
 
   Modal(this.modalContainer, Element screenCover) {
     screenCover.onClick.listen((_) => close());
+    document.onKeyPress.listen((press) {
+      if (press.key == "Escape") close();
+    });
   }
 
   void show(Element msg) {
@@ -16,6 +19,6 @@ class Modal {
 
   void close() {
     modalContainer.style.display = "none";
-    message.remove();
+    message?.remove();
   }
 }
