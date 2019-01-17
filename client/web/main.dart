@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
+import 'test/api.dart';
 
 Future<void> main() async {
-  final session = Session(FetchClient());
+  final session = Session(client);
   try {
     await session.init();
   } on StateError {
@@ -26,8 +27,10 @@ Future<void> main() async {
           session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
+  final Map<int, PartHtml> htmlPartsChildrenBuffer = {};
   for (final part in htmlParts.values)
-    htmlParts.addEntries(part.children.map((p) => MapEntry(p.model.id, p)));
+    htmlPartsChildrenBuffer.addEntries(part.children.map((p) => MapEntry(p.model.id, p)));
+  htmlParts.addAll(htmlPartsChildrenBuffer);
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
