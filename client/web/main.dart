@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
-import 'test/api.dart';
 
 Future<void> main() async {
-  final session = Session(client);
+  final session = Session(FetchClient());
   try {
     await session.init();
   } on StateError {
