@@ -23,7 +23,7 @@ Future<void> main() async {
   });
   final partsContainer = document.querySelector("#partsList");
   final htmlParts = Map.fromEntries(
-          session.parts.entries.where((m) => m.value.parentID != null))
+          session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
   for (final part in htmlParts.values)
