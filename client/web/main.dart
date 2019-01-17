@@ -26,6 +26,8 @@ Future<void> main() async {
           session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
+  htmlParts.addEntries(
+      flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
@@ -86,4 +88,20 @@ Future<void> main() async {
           .then((_) => window.location.reload());
     }
   }
+}
+
+List<PartHtml> flatten(List<PartHtml> parts) {
+  final result = <PartHtml>[];
+
+  void recurse(PartHtml part) {
+    if (part.children.isNotEmpty && part.model.parentID != null)
+      result.add(part);
+    for (final child in part.children) {
+      result.add(child);
+      recurse(child);
+    }
+  }
+
+  parts.forEach(recurse);
+  return result;
 }
