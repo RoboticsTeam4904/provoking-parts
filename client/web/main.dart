@@ -26,9 +26,6 @@ Future<void> main() async {
           session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
-  final Map<int, PartHtml> htmlPartsChildrenBuffer = {};
-  for (final part in htmlParts.values)
-    htmlPartsChildrenBuffer.addEntries(part.children.map((p) => MapEntry(p.model.id, p)));
   htmlParts.addAll(htmlPartsChildrenBuffer);
   while (true) {
     try {
@@ -90,4 +87,12 @@ Future<void> main() async {
           .then((_) => window.location.reload());
     }
   }
+}
+
+Map<int, PartHtml> expandPartHtmlChildren(Map<int, PartHtml> htmlParts) {
+  final Map<int, PartHtml> buffer = {};
+  for (final part in htmlParts.values)
+    buffer.addAll(
+        (Map.fromEntries(part.children.map((p) => MapEntry(p.model.id, p)))));
+  return buffer;
 }
