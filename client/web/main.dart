@@ -28,6 +28,7 @@ Future<void> main() async {
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
+  print(htmlParts);
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
@@ -90,7 +91,7 @@ Future<void> main() async {
   }
 }
 
-List<PartHtml> flatten(List<PartHtml> parts) {
+List<PartHtml> flatten(Iterable<PartHtml> parts) {
   final result = <PartHtml>[];
 
   void recurse(PartHtml part) {
