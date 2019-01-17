@@ -92,8 +92,8 @@ Future<void> main() async {
 Map<int, PartHtml> expandPartHtmlChildren(Map<int, PartHtml> htmlParts) {
   final Map<int, PartHtml> buffer = {};
   for (final part in htmlParts.values)
-    buffer.addAll((Map.fromEntries(part.children
+    buffer.addAll(expandPartHtmlChildren(Map.fromEntries(part.children
         .expand((p) => p.children)
-        .map((p) => MapEntry(p.model.id, p)))));
+        .followedBy([part]).map((p) => MapEntry(p.model.id, p)))));
   return buffer;
 }
