@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'custom_alert.dart';
+
 abstract class InputField<T> {
   String name;
   Element elem;
@@ -21,10 +22,9 @@ class DefaultInput extends InputField<String> {
 
   DefaultInput(String type, String name, String displayName,
       {String defaultValue = "",
-      Function(DefaultInput) customInputValidation,
+      this.customInputValidation,
       this.overrideDefaultValidation = false})
-      : customInputValidation = customInputValidation ?? ((_) {}),
-        super(
+      : super(
             name,
             DivElement()
               ..children.addAll([
@@ -40,7 +40,7 @@ class DefaultInput extends InputField<String> {
   void validateInput() {
     if (!overrideDefaultValidation && (value == null || value.isEmpty))
       throw FormatException("You must input something for $name.");
-    customInputValidation(this);
+    if (customInputValidation != null) customInputValidation(this);
   }
 }
 
@@ -52,8 +52,7 @@ class IntInput extends InputField<int> {
   int get value => int.tryParse(input.value);
 
   IntInput(String name, String displayName,
-      {var defaultValue,
-      Function(IntInput) customInputValidation})
+      {var defaultValue, Function(IntInput) customInputValidation})
       : customInputValidation = customInputValidation ?? ((_) {}),
         super(
             name,
