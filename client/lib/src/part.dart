@@ -14,9 +14,7 @@ const loadingAnim = "$assetsPath/loading.png";
 
 class PartHtml {
   Session session;
-  DivElement elem;
-  DivElement part;
-  DivElement childrenContainer;
+  DivElement elem, part, childrenContainer;
   List<PartHtml> children = [];
   PartModel model;
   Modal modal;
@@ -59,13 +57,19 @@ class PartHtml {
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
-          displayPartMenu(newPart: true);
           e.stopPropagation();
+          // this is done to close status dropdowns
+          document.body.click();
+
+          displayPartMenu(newPart: true);
         }),
       ImageElement(src: deleteImg, width: 20, height: 20)
         ..className = "delete"
         ..onClick.listen((e) async {
           e.stopPropagation();
+          // this is done to close status dropdowns
+          document.body.click();
+
           if (!window.confirm(
               "Are you sure you would like to delete ${model.name} and all of its subparts?"))
             return;
@@ -98,11 +102,14 @@ class PartHtml {
       ? (ImageElement(src: partImg)..className = "icon")
       : (ImageElement(src: "${disclosureTriangleImg}true.png")
         ..onClick.listen((e) {
+          e.stopPropagation();
+          // this is done to close status dropdowns
+          document.body.click();
+
           childrenContainer.style.display =
               (childrenDisplayed = !childrenDisplayed) ? "none" : "";
           (e.target as ImageElement).srcset =
               "$disclosureTriangleImg${!childrenDisplayed}.png";
-          e.stopPropagation();
         })
         ..className = "icon disclosureTri");
 

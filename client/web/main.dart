@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
+import 'test/api.dart';
 
 Future<void> main() async {
-  final session = Session(FetchClient());
+  final session = Session(client);
   try {
     await session.init();
   } on StateError {
@@ -91,7 +92,7 @@ Future<void> main() async {
   }
 }
 
-List<PartHtml> flatten(Iterable<PartHtml> parts) {
+List<PartHtml> flatten(List<PartHtml> parts) {
   final result = <PartHtml>[];
 
   void recurse(PartHtml part) {
