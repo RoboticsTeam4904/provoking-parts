@@ -91,7 +91,7 @@ Future<void> main() async {
   }
 }
 
-List<PartHtml> flatten(List<PartHtml> parts) {
+List<PartHtml> flatten(Iterable<PartHtml> parts) {
   final result = <PartHtml>[];
 
   void recurse(PartHtml part) {
