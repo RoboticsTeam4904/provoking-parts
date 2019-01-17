@@ -26,9 +26,6 @@ Future<void> main() async {
           session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
-  htmlParts.addAll(Map.fromEntries(htmlParts.values.fold<List<PartHtml>>([], (a, b) {
-    return a.followedBy(b.children);
-  }).map((p) => MapEntry(p.model.id, p))));
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
