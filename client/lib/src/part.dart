@@ -17,7 +17,7 @@ class PartHtml {
   DivElement elem;
   DivElement part;
   DivElement childrenContainer;
-  List<PartHtml> children;
+  List<PartHtml> children = [];
   PartModel model;
   Modal modal;
   StatusDropdown status;
