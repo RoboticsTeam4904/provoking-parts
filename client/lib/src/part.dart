@@ -41,6 +41,7 @@ class PartHtml {
             .addAll(model.children.map((m) {
               final part = PartHtml(session.parts[m], modal, session);
               children.add(part);
+              return part.elem;
             }))
     ]);
 

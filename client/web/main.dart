@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
-import 'package:http/browser_client.dart';
 
 Future<void> main() async {
   final session = Session(FetchClient());
