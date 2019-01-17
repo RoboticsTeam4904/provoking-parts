@@ -78,15 +78,15 @@ class StatusDropdown extends InputField<int> {
       this.selectedContainer,
       this.selectedElement)
       : super(name, elem) {
+    StreamSubscription closeOnNextClick;
     elem.onClick.listen((e) {
       e.stopPropagation();
-      // this crap is done to close all other status dropdowns
-      // I think the correct solution is to add an overlay to part and allow propagation
+      closeOnNextClick?.cancel();
       document.body.click();
-      
+
       optionsDisplayed = !optionsDisplayed;
       optionsContainer.style.display = optionsDisplayed ? "" : "none";
-      StreamSubscription closeOnNextClick;
+
       closeOnNextClick = document.onClick.listen((_) {
         optionsDisplayed = false;
         optionsContainer.style.display = "none";

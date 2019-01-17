@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
+import 'test/api.dart';
 
 Future<void> main() async {
-  final session = Session(FetchClient());
+  final session = Session(client);
   try {
     await session.init();
   } on StateError {
@@ -29,6 +30,7 @@ Future<void> main() async {
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
   print(htmlParts);
+  return;
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
