@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'api.dart';
 import 'custom_alert.dart';
@@ -14,7 +15,7 @@ const loadingAnim = "$assetsPath/loading.png";
 
 class PartHtml {
   Session session;
-  DivElement elem, part, childrenContainer;
+  DivElement elem, part, copyCover, childrenContainer;
   List<PartHtml> children = [];
   PartModel model;
   Modal modal;
@@ -35,12 +36,11 @@ class PartHtml {
       isolatedElem(),
       childrenContainer = DivElement()
         ..className = "partChildren"
-        ..children
-            .addAll(model.children.map((m) {
-              final part = PartHtml(session.parts[m], modal, session);
-              children.add(part);
-              return part.elem;
-            }))
+        ..children.addAll(model.children.map((m) {
+          final part = PartHtml(session.parts[m], modal, session);
+          children.add(part);
+          return part.elem;
+        }))
     ]);
 
   DivElement isolatedElem() => part = DivElement()
@@ -106,12 +106,15 @@ class PartHtml {
           // this is done to close status dropdowns
           document.body.click();
 
-          childrenContainer.style.display =
-              (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-          (e.target as ImageElement).srcset =
-              "$disclosureTriangleImg${!childrenDisplayed}.png";
+          toggleChildrenDisplayed(e.target as ImageElement);
         })
         ..className = "icon disclosureTri");
+
+  void toggleChildrenDisplayed(ImageElement tri) {
+    childrenContainer.style.display =
+        (childrenDisplayed = !childrenDisplayed) ? "none" : "";
+    tri.srcset = "$disclosureTriangleImg${!childrenDisplayed}.png";
+  }
 
   void displayPartMenu({bool newPart = false}) {
     modal.show(EditMenu(newPart ? "New part" : "Editing ${model.name}", [
@@ -135,8 +138,8 @@ class PartHtml {
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
-      await session.update(PartModel.fromJson(json, session),
-          newPart ? UpdateType.create : UpdateType.patch);
+      await session.updateFromJson(json,
+          newPart ? UpdateType.create : UpdateType.patch, "parts");
       modal.close();
     },
             defaultJson: newPart ? {"parentID": model.id} : model.toJson(),
