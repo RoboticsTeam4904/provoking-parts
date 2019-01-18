@@ -20,7 +20,7 @@ class AlertManager {
 }
 
 class CustomAlert {
-  static DivElement alerts = document.querySelector("#alerts");
+  static DivElement alerts = querySelector("#alerts");
   DivElement elem;
 
   CustomAlert(Alert type, String msg) {

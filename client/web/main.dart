@@ -14,14 +14,14 @@ Future<void> main() async {
     CustomAlert(Alert.error, "Init error: $e");
   }
   final modal = Modal(
-      document.querySelector("#modal"), document.querySelector("#screenCover"));
+      querySelector("#modal"), querySelector("#screenCover"));
   final dummyPart = PartHtml(
       PartModel(null, null, null, null, 0, null, session), modal, session,
       debug: true);
-  document.querySelector("#newTopLevelPart").onClick.listen((_) {
+  querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true);
   });
-  final partsContainer = document.querySelector("#partsList");
+  final partsContainer = querySelector("#partsList");
   final htmlParts = Map.fromEntries(
           session.parts.entries.where((m) => m.value.parentID == null))
       .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
@@ -75,7 +75,7 @@ Future<void> main() async {
             CustomAlert(Alert.error, "pl0x don't do this to me rohan");
           else if (update["old"] != null) {
             final newStatus = StatusModel.fromJson(update["new"], session);
-            document.querySelectorAll("#status${newStatus.id}").forEach(
+            querySelectorAll("#status${newStatus.id}").forEach(
                 (status) => StatusHtml.updateStatusElement(status, newStatus));
           } else
             for (final part in htmlParts.values)
