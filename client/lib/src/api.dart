@@ -124,22 +124,23 @@ class Session {
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<void> update(Model model, UpdateType updateType) async {
-    final url = "$endpoint/${model.endpoint}/${model.id ?? ""}";
+  Future<void> update(Model model, UpdateType updateType) => updateFromJson(model.toJson(), updateType, model.endpoint);
+
+  Future<void> updateFromJson(Map<String, dynamic> updateJson, UpdateType updateType, String endpoint) async {
+    final url = "$endpoint/$endpoint/${updateJson["id"] ?? ""}";
     Response resp;
-    print(model.toJson());
     switch (updateType) {
       case UpdateType.delete:
         resp = await client.delete(url);
         break;
       case UpdateType.patch:
         resp = await client.patch(url,
-            body: jsonEncode(model.toJson()),
+            body: jsonEncode(updateJson),
             headers: {"content-type": "application/json"});
         break;
       case UpdateType.create:
         resp = await client.post(url,
-            body: jsonEncode(model.toJson()),
+            body: jsonEncode(updateJson),
             headers: {"content-type": "application/json"});
         break;
       default:
