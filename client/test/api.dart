@@ -11,7 +11,7 @@ const sessionJson = {
   "parts": [
     {
       "id": 0,
-      "name": "Top-level Assembly",
+      "name": "IF YOU CAN SEE THIS DON'T WORRY, JUST NOTIFY LEO",
       "quantity": 1,
       "statusID": 1,
       "parentID": null
