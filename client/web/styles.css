@@ -64,6 +64,7 @@ img {
   width: 100%;
   height: 100%;
   display: grid;
+  z-index: 100;
 }
 
 #screenCover {
@@ -76,11 +77,11 @@ img {
 
 .modalMessage {
   margin: auto;
-  z-index: 100;
   padding: 32px;
   background-color: #fafafa;
   border-radius: 4px;
   min-width: 25%;
+  z-index: 1;
 }
 
 .modalMessage .title {
@@ -97,7 +98,7 @@ img {
   margin-right: 6px;
 }
 
-.modalMessage .inputs div input {
+.modalMessage .inputs div textarea {
   display: block;
   padding: 6px;
   border: 1px solid #aaaaaa;
@@ -154,6 +155,13 @@ img {
 
 .part span {
   margin-right: 12px;
+}
+
+.part .description {
+  margin-left: 50px;
+  font-size: 15px;
+  text-align: center;
+  width: 100%;
 }
 
 .part:hover, #newPart:hover {
@@ -231,7 +239,7 @@ img {
 
 .statusDropdown .options {
   font-size: 12px;
-  position: fixed;
+  position: absolute;
   padding: 8px;
   border: 1px solid #aaaaaa;
   border-radius: 4px;
