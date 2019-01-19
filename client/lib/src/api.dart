@@ -126,8 +126,8 @@ class Session {
 
   Future<void> update(Model model, UpdateType updateType) => updateFromJson(model.toJson(), updateType, model.endpoint);
 
-  Future<void> updateFromJson(Map<String, dynamic> updateJson, UpdateType updateType, String endpoint) async {
-    final url = "$endpoint/${updateJson["id"] ?? ""}";
+  Future<void> updateFromJson(Map<String, dynamic> updateJson, UpdateType updateType, String modelEndpoint) async {
+    final url = "$endpoint/$modelEndpoint/${updateJson["id"] ?? ""}";
     Response resp;
     switch (updateType) {
       case UpdateType.delete:
