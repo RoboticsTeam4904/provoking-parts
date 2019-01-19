@@ -29,7 +29,6 @@ Future<void> main() async {
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
   print(htmlParts);
-  return;
   while (true) {
     try {
       final updateStream = session.pollForUpdates();

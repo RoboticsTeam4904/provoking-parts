@@ -124,9 +124,11 @@ class Session {
     throw Exception("${resp.statusCode}: ${resp.body}");
   }
 
-  Future<void> update(Model model, UpdateType updateType) => updateFromJson(model.toJson(), updateType, model.endpoint);
+  Future<void> update(Model model, UpdateType updateType) =>
+      updateFromJson(model.toJson(), updateType, model.endpoint);
 
-  Future<void> updateFromJson(Map<String, dynamic> updateJson, UpdateType updateType, String modelEndpoint) async {
+  Future<void> updateFromJson(Map<String, dynamic> updateJson,
+      UpdateType updateType, String modelEndpoint) async {
     final url = "$endpoint/$modelEndpoint/${updateJson["id"] ?? ""}";
     Response resp;
     switch (updateType) {
