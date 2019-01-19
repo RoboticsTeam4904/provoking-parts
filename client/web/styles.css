@@ -118,6 +118,7 @@ img {
 .modalMessage .inputs .statusDropdown .options {
   margin-top: -8px;
   padding: 8px;
+  max-height: 29%;
 }
 
 .editMenu .errors {
