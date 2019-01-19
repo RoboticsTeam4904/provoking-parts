@@ -54,6 +54,13 @@ class PartHtml {
       SpanElement()
         ..className = "quantity"
         ..text = "x${model.quantity}",
+      SpanElement()
+        ..className = "description"
+        ..text = model.description == null
+            ? ""
+            : (model.description
+                    .substring(0, 100.clamp(0, model.description.length)).trim() +
+                (model.description.length > 20 ? "..." : "")),
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
@@ -138,8 +145,8 @@ class PartHtml {
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
-      await session.updateFromJson(json,
-          newPart ? UpdateType.create : UpdateType.patch, "parts");
+      await session.updateFromJson(
+          json, newPart ? UpdateType.create : UpdateType.patch, "parts");
       modal.close();
     },
             defaultJson: newPart ? {"parentID": model.id} : model.toJson(),
