@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:html';
 import 'api.dart';
 import 'custom_alert.dart';
