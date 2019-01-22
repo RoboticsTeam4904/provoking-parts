@@ -28,7 +28,6 @@ Future<void> main() async {
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
-  print(htmlParts);
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
@@ -42,7 +41,6 @@ Future<void> main() async {
             htmlParts[oldID].elem.remove();
             htmlParts.remove(oldID);
           } else {
-            print("patching part");
             PartHtml newPart;
             if (update["old"] == null) {
               newPart = PartHtml(session.parts[update["new"]["id"]], modal, session);
@@ -58,8 +56,6 @@ Future<void> main() async {
                 update["old"]["parentID"] != newPart.model.parentID) {
               print("(re) adding part to dom");
               final parentPart = htmlParts[newPart.model.parentID];
-              print(
-                  "correct parent part? ${querySelector("#part$newPart.model.parentID") == parentPart.elem}");
               (parentPart?.childrenContainer ?? partsContainer)
                   .children
                   .add(newPart.elem);
@@ -68,7 +64,6 @@ Future<void> main() async {
                     parentPart.disclosureTriangle();
             }
           }
-          print(session.parts.map((i, p) => MapEntry(i, p.toJson())));
         } else {
           if (update["new"] == null)
             CustomAlert(Alert.error, "pl0x don't do this to me rohan");
