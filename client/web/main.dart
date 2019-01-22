@@ -45,8 +45,8 @@ Future<void> main() async {
             print("patching part");
             PartHtml newPart;
             if (update["old"] == null) {
-              newPart = htmlParts[newPart.model.id] =
-                  PartHtml(session.parts[update["new"]["id"]], modal, session);
+              newPart = PartHtml(session.parts[update["new"]["id"]], modal, session);
+              htmlParts[newPart.model.id] = newPart;
             } else {
               newPart = htmlParts[update["new"]["id"]];
               newPart.part.replaceWith(newPart.isolatedElem());
