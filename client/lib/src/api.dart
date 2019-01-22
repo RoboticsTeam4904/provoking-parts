@@ -7,8 +7,6 @@ import 'package:http/browser_client.dart';
 var a = BrowserClient();
 
 const endpoint = "http://parts.botprovoking.org/api";
-const clientID =
-    "43209138071-pgsjmtnp3g4en3kdkn38jikruud4v55r.apps.googleusercontent.com";
 enum UpdateType { delete, create, patch }
 
 abstract class Model extends Equatable {
