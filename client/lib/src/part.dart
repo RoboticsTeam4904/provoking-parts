@@ -19,11 +19,13 @@ class PartHtml {
   List<PartHtml> children = [];
   PartModel model;
   Modal modal;
+  AlertManager alerts;
   StatusDropdown status;
   bool childrenDisplayed = false;
   bool debug;
 
-  PartHtml(this.model, this.modal, this.session, {this.debug = false}) {
+  PartHtml(this.model, this.session, this.modal, this.alerts,
+      {this.debug = false}) {
     if (debug) return;
     fullElem(model.parentID == null);
   }
@@ -37,7 +39,7 @@ class PartHtml {
       childrenContainer = DivElement()
         ..className = "partChildren"
         ..children.addAll(model.children.map((m) {
-          final part = PartHtml(session.parts[m], modal, session);
+          final part = PartHtml(session.parts[m], session, modal, alerts);
           children.add(part);
           return part.elem;
         }))
@@ -89,7 +91,7 @@ class PartHtml {
           try {
             await session.update(model, UpdateType.delete);
           } catch (ex) {
-            CustomAlert(Alert.error, ex.toString());
+            alerts.show(CustomAlert(Alert.error, ex.toString()));
           }
         }),
       (status = StatusDropdown("status",
@@ -102,9 +104,10 @@ class PartHtml {
           final updateModel = PartModel.fromJson(json, session);
           await session.update(updateModel, UpdateType.patch);
         } catch (e) {
-          CustomAlert(Alert.warning,
-              "Failed to update status of part ${model.name}. Reverting to previous Status.");
-          CustomAlert(Alert.error, e.toString());
+          alerts
+            ..show(CustomAlert(Alert.warning,
+                "Failed to update status of part ${model.name}. Reverting to previous Status."))
+            ..show(CustomAlert(Alert.error, e.toString()));
           status.selectID(oldID, callOnChange: false);
         }
       }))
@@ -151,8 +154,12 @@ class PartHtml {
           selectedStatus:
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
+      try {
       await session.updateFromJson(
           json, newPart ? UpdateType.create : UpdateType.patch, "parts");
+      } catch (e)  {
+        alerts.show(CustomAlert(Alert.error, e.toString()));
+      }
       modal.close();
     },
             defaultJson: newPart ? {"parentID": model.id} : model.toJson(),

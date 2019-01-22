@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:client/client.dart';
 
 Future<void> main() async {
+  final alerts = AlertManager(querySelector('#alerts'));
   final session = Session(FetchClient());
   try {
     await session.init();
@@ -11,12 +12,15 @@ Future<void> main() async {
     window.location.pathname = "/google";
     return;
   } catch (e) {
-    CustomAlert(Alert.error, "Init error: $e");
+    alerts.show(CustomAlert(Alert.error, "Init error: $e"));
+    return;
   }
-  final modal = Modal(
-      querySelector("#modal"), querySelector("#screenCover"));
+  final modal = Modal(querySelector("#modal"), querySelector("#screenCover"));
   final dummyPart = PartHtml(
-      PartModel(null, null, null, null, 0, null, session), modal, session,
+      PartModel(null, null, null, null, 0, null, session),
+      session,
+      modal,
+      alerts,
       debug: true);
   querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true);
@@ -24,7 +28,7 @@ Future<void> main() async {
   final partsContainer = querySelector("#partsList");
   final htmlParts = Map.fromEntries(
           session.parts.entries.where((m) => m.value.parentID == null))
-      .map((i, p) => MapEntry(i, PartHtml(p, modal, session)));
+      .map((i, p) => MapEntry(i, PartHtml(p, session, modal, alerts)));
   for (final part in htmlParts.values) partsContainer.children.add(part.elem);
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
@@ -43,7 +47,8 @@ Future<void> main() async {
           } else {
             PartHtml newPart;
             if (update["old"] == null) {
-              newPart = PartHtml(session.parts[update["new"]["id"]], modal, session);
+              newPart = PartHtml(
+                  session.parts[update["new"]["id"]], session, modal, alerts);
               htmlParts[newPart.model.id] = newPart;
             } else {
               newPart = htmlParts[update["new"]["id"]];
@@ -66,7 +71,8 @@ Future<void> main() async {
           }
         } else {
           if (update["new"] == null)
-            CustomAlert(Alert.error, "pl0x don't do this to me rohan");
+            alerts.show(
+                CustomAlert(Alert.error, "pl0x don't do this to me rohan"));
           else if (update["old"] != null) {
             final newStatus = StatusModel.fromJson(update["new"], session);
             querySelectorAll("#status${newStatus.id}").forEach(
@@ -78,8 +84,10 @@ Future<void> main() async {
         }
       }
     } catch (e) {
-      CustomAlert(Alert.error, e.toString());
-      CustomAlert(Alert.warning, "Reloading page deux to fatal error...");
+      alerts
+        ..show(CustomAlert(Alert.error, e.toString()))
+        ..show(CustomAlert(
+            Alert.warning, "Reloading page deux to fatal error..."));
       await Future.delayed(Duration(seconds: 3))
           .then((_) => window.location.reload());
     }

@@ -103,13 +103,9 @@ class EditMenu {
               ..className = "save"
               ..text = "Save"
               ..onClick.listen((_) async {
-                try {
-                  final json = assembleJson();
-                  if (errors.children.isNotEmpty) return;
-                  await onComplete(json);
-                } catch (e) {
-                  CustomAlert(Alert.error, "Save Error: $e");
-                }
+                final json = assembleJson();
+                if (errors.children.isNotEmpty) return;
+                await onComplete(json);
               }),
             ButtonElement()
               ..className = "cancel"
