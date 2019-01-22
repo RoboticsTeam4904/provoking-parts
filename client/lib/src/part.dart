@@ -12,6 +12,7 @@ const partImg = "$assetsPath/part.png";
 const plusImg = "$assetsPath/plus.png";
 const deleteImg = "$assetsPath/trashcan.png";
 const loadingAnim = "$assetsPath/loading.png";
+const descriptionDisplayLen = 100;
 
 class PartHtml {
   Session session;
@@ -59,8 +60,14 @@ class PartHtml {
         ..text = model.description == null
             ? ""
             : (model.description
-                    .substring(0, 100.clamp(0, model.description.length)).trim() +
-                (model.description.length > 20 ? "..." : "")),
+                    .substring(
+                        0,
+                        descriptionDisplayLen.clamp(
+                            0, model.description.length))
+                    .trim() +
+                (model.description.length > descriptionDisplayLen
+                    ? "..."
+                    : "")),
       ImageElement(src: plusImg, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
