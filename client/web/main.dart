@@ -43,6 +43,7 @@ Future<void> main() async {
   final htmlParts = <int, PartHtml>{}..[null] = dummyPart;
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
+  return;
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
