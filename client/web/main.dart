@@ -36,7 +36,6 @@ Future<void> main() async {
   querySelector("#sortNames").onClick.listen(
       (_) => dummyPart.sort((a, b) => a.model.name.compareTo(b.model.name)));
   querySelector("#sortStatuses").onClick.listen((_) => dummyPart.sort((a, b) {
-        if (a.model.statusID == null) return -1;
         if (a.model.statusID == b.model.statusID) return a.model.name.compareTo(b.model.name);
         return a.model.statusID > b.model.statusID ? -1 : 1;
       }));
