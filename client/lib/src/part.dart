@@ -15,7 +15,7 @@ const descriptionDisplayLen = 100;
 
 class PartHtml {
   Session session;
-  DivElement elem, part, copyCover, childrenContainer;
+  DivElement elem, part, childrenContainer;
   List<PartHtml> children = [];
   PartModel model;
   Modal modal;
@@ -167,5 +167,9 @@ class PartHtml {
         .elem);
   }
 
-  
+  void sort(int Function(PartHtml a, PartHtml b) compare) {
+    children.sort(compare);
+    childrenContainer.children = children.map((p) => p.elem).toList();
+    children.forEach((p) => p.sort(compare));
+  }
 }

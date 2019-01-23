@@ -16,20 +16,31 @@ Future<void> main() async {
     return;
   }
   final modal = Modal(querySelector("#modal"), querySelector("#screenCover"));
+  final partsContainer = querySelector("#partsList");
   final dummyPart = PartHtml(
       PartModel(null, null, null, null, 0, null, session),
       session,
       modal,
       alerts,
-      debug: true);
+      debug: true)
+    ..childrenContainer = partsContainer
+    ..children = session.parts.values
+        .where((p) => p.parentID == null)
+        .map((p) => PartHtml(p, session, modal, alerts))
+        .toList();
+  dummyPart.childrenContainer.children
+      .addAll(dummyPart.children.map((p) => p.elem));
   querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true);
   });
-  final partsContainer = querySelector("#partsList");
-  final htmlParts = Map.fromEntries(
-          session.parts.entries.where((m) => m.value.parentID == null))
-      .map((i, p) => MapEntry(i, PartHtml(p, session, modal, alerts)));
-  for (final part in htmlParts.values) partsContainer.children.add(part.elem);
+  querySelector("#sortNames").onClick.listen(
+      (_) => dummyPart.sort((a, b) => a.model.name.compareTo(b.model.name)));
+  querySelector("#sortStatuses").onClick.listen((_) => dummyPart.sort((a, b) {
+        if (a.model.statusID == null) return -1;
+        if (a.model.statusID == b.model.statusID) return 1;
+        return a.model.statusID > b.model.statusID ? -1 : 1;
+      }));
+  final htmlParts = <int, PartHtml>{}..[null] = dummyPart;
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
   while (true) {
@@ -60,11 +71,9 @@ Future<void> main() async {
             if (update["old"] == null ||
                 update["old"]["parentID"] != newPart.model.parentID) {
               print("(re) adding part to dom");
-              final parentPart = htmlParts[newPart.model.parentID];
-              (parentPart?.childrenContainer ?? partsContainer)
-                  .children
-                  .add(newPart.elem);
-              if (parentPart != null)
+              final parentPart = htmlParts[newPart.model.parentID]
+                ..childrenContainer.children.add(newPart.elem);
+              if (parentPart.model.id != null)
                 parentPart.part.children.first =
                     parentPart.disclosureTriangle();
             }
