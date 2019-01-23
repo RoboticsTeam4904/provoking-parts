@@ -153,6 +153,7 @@ img {
   border-style: solid;
   border-width: 1px;
   background-color: #f0f0f0;
+  overflow: hidden;
 }
 
 .part span {
