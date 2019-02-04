@@ -3,7 +3,10 @@ import 'dart:html';
 import 'package:client/client.dart';
 
 Future<void> main() async {
+  // Initialize alerts
   final alerts = AlertManager(querySelector('#alerts'));
+
+  // Initialize the session
   final session = Session(FetchClient());
   try {
     await session.init();
@@ -12,10 +15,15 @@ Future<void> main() async {
     window.location.pathname = "/google";
     return;
   } catch (e) {
-    alerts.show(CustomAlert(Alert.error, "Init error: $e"));
+    // Authentication Failed
+    alerts.show(CustomAlert(Alert.error, "Error while initializing the page: $e"));
     return;
   }
+
+  // Initialize the modal
   final modal = Modal(querySelector("#modal"), querySelector("#screenCover"));
+
+  // Initalize the html parts
   final partsContainer = querySelector("#partsList");
   final dummyPart = PartHtml(
       PartModel(null, null, null, null, 0, null, session),
@@ -33,15 +41,20 @@ Future<void> main() async {
   querySelector("#newTopLevelPart").onClick.listen((_) {
     dummyPart.displayPartMenu(newPart: true);
   });
-  querySelector("#sortNames").onClick.listen(
-      (_) => dummyPart.sort((a, b) => a.model.name.compareTo(b.model.name)));
-  querySelector("#sortStatuses").onClick.listen((_) => dummyPart.sort((a, b) {
-        if (a.model.statusID == b.model.statusID) return a.model.name.compareTo(b.model.name);
-        return a.model.statusID > b.model.statusID ? -1 : 1;
-      }));
   final htmlParts = <int, PartHtml>{}..[null] = dummyPart;
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
+
+  // Make sorting buttons
+  querySelector("#sortNames").onClick.listen(
+      (_) => dummyPart.sort((a, b) => a.model.name.compareTo(b.model.name)));
+  querySelector("#sortStatuses").onClick.listen((_) => dummyPart.sort((a, b) {
+        if (a.model.statusID == b.model.statusID)
+          return a.model.name.compareTo(b.model.name);
+        return a.model.statusID > b.model.statusID ? -1 : 1;
+      }));
+
+  // Poll for updates
   while (true) {
     try {
       final updateStream = session.pollForUpdates();
@@ -88,7 +101,7 @@ Future<void> main() async {
           } else
             for (final part in htmlParts.values)
               part.status
-                  .addOption(StatusHtml.fromID(update["new"]["id"], session));
+                  ?.addOption(StatusHtml.fromID(update["new"]["id"], session));
         }
       }
     } catch (e) {
