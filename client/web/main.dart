@@ -56,7 +56,7 @@ Future<void> main() async {
       }));
 
   // Dark mode
-  const percentdarkMode = 100;
+  const percentDarkMode = 100;
   const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
   final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
   StreamSubscription codeListener;
@@ -67,11 +67,11 @@ Future<void> main() async {
     for (int i = 0; i < keypressBuff.length; ++i)
       if (keypressBuff[i] != code[i]) return;
     querySelector("html").style
-      ..setProperty("-webkit-filter", "invert($percentdarkMode%)")
-      ..setProperty("-moz-filter", "invert($percentdarkMode%)")
-      ..setProperty("-o-filter:", "invert($percentdarkMode%)")
-      ..setProperty("-ms-filter", "invert($percentdarkMode%)");
-    document.body.style.backgroundColor = "#000000";
+      ..setProperty("-webkit-filter", "invert($percentDarkMode%)")
+      ..setProperty("-moz-filter", "invert($percentDarkMode%)")
+      ..setProperty("-o-filter:", "invert($percentDarkMode%)")
+      ..setProperty("-ms-filter", "invert($percentDarkMode%)");
+    document.body.style.backgroundColor = "#${(100-percentDarkMode).toRadixString(16).padLeft(6, '0')}";
     codeListener.cancel();
   });
 
