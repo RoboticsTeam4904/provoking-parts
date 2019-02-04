@@ -255,6 +255,7 @@ img {
   border: 1px solid #aaaaaa;
   border-radius: 4px;
   background-color: #f0f0f0;
+  text-align: right;
 }
 
 .statusDropdown .label {
