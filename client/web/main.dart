@@ -71,6 +71,7 @@ Future<void> main() async {
       ..setProperty("-moz-filter", "invert($percentdarkMode%)")
       ..setProperty("-o-filter:", "invert($percentdarkMode%)")
       ..setProperty("-ms-filter", "invert($percentdarkMode%)");
+    document.body.style.backgroundColor = "#000000";
     codeListener.cancel();
   });
 
