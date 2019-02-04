@@ -16,7 +16,8 @@ Future<void> main() async {
     return;
   } catch (e) {
     // Authentication Failed
-    alerts.show(CustomAlert(Alert.error, "Error while initializing the page: $e"));
+    alerts.show(
+        CustomAlert(Alert.error, "Error while initializing the page: $e"));
     return;
   }
 
@@ -53,6 +54,25 @@ Future<void> main() async {
           return a.model.name.compareTo(b.model.name);
         return a.model.statusID > b.model.statusID ? -1 : 1;
       }));
+
+  // Dark mode
+  const percentdarkMode = 100;
+  const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
+  final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
+  StreamSubscription codeListener;
+  codeListener = document.onKeyDown.listen((e) {
+    keypressBuff
+      ..removeAt(0)
+      ..add(e.keyCode);
+    for (int i = 0; i < keypressBuff.length; ++i)
+      if (keypressBuff[i] != code[i]) return;
+    querySelector("html").style
+      ..setProperty("-webkit-filter", "invert($percentdarkMode%)")
+      ..setProperty("-moz-filter", "invert($percentdarkMode%)")
+      ..setProperty("-o-filter:", "invert($percentdarkMode%)")
+      ..setProperty("-ms-filter", "invert($percentdarkMode%)");
+    codeListener.cancel();
+  });
 
   // Poll for updates
   while (true) {
