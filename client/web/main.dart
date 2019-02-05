@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
-import 'test/api.dart';
 
 Future<void> main() async {
   // Initialize alerts
   final alerts = AlertManager(querySelector('#alerts'));
 
   // Initialize the session
-  final session = Session(client);
+  final session = Session(FetchClient());
   try {
     await session.init();
   } on StateError {
@@ -91,7 +90,7 @@ Future<void> main() async {
         "#${(0xffffff * (100 - percent) / 100 as int).toRadixString(16).padLeft(6, '0')}";
     print(document.body.style.backgroundColor);
   });
-return;
+
   // Poll for updates
   while (true) {
     try {
