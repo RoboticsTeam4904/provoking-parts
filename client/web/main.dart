@@ -56,17 +56,15 @@ Future<void> main() async {
       }));
   bool allPartsDisplayed = false;
   querySelector("#cebi").onClick.listen((_) {
-    allPartsDisplayed = !allPartsDisplayed;
-
     void closeAllChildren(PartHtml part) => part
-      ..toggleChildrenDisplayed()
-      ..children.forEach((p) {
+      .children.forEach((p) {
         if (p.children.isEmpty) return;
         if (allPartsDisplayed != p.childrenDisplayed) p.toggleChildrenDisplayed();
         closeAllChildren(p);
       });
 
-    dummyPart.children.forEach(closeAllChildren);
+    allPartsDisplayed = !allPartsDisplayed;
+    closeAllChildren(dummyPart);
   });
 
   // Dark mode
