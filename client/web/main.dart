@@ -71,6 +71,7 @@ Future<void> main() async {
 
   // Dark mode
   const percentDarkMode = 100;
+  const whitelistedElements = ["", "#alerts", ".color"];
   const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
   final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
   StreamSubscription codeListener;
@@ -80,7 +81,7 @@ Future<void> main() async {
       ..add(e.keyCode);
     for (int i = 0; i < keypressBuff.length; ++i)
       if (keypressBuff[i] != code[i]) return;
-    querySelectorAll("html").style
+    querySelectorAll("html${whitelistedElements.join(",")}").style
       ..setProperty("-webkit-filter", "invert($percentDarkMode%)")
       ..setProperty("-moz-filter", "invert($percentDarkMode%)")
       ..setProperty("-o-filter:", "invert($percentDarkMode%)")
