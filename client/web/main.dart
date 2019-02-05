@@ -85,7 +85,6 @@ Future<void> main() async {
       ..setProperty("-moz-filter", "invert($percent%)")
       ..setProperty("-o-filter:", "invert($percent%)")
       ..setProperty("-ms-filter", "invert($percent%)");
-    print((0xffffff * (1 - percentDarkMode / 100) as int).toRadixString(16).padLeft(6, '0'));
     document.body.style.backgroundColor =
         "#${(0xffffff * (1 - percent / 100) as int).toRadixString(16).padLeft(6, '0')}";
   });
