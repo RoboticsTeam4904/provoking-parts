@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
+import 'test/api.dart';
 
 Future<void> main() async {
   // Initialize alerts
   final alerts = AlertManager(querySelector('#alerts'));
 
   // Initialize the session
-  final session = Session(FetchClient());
+  final session = Session(client);
   try {
     await session.init();
   } on StateError {
@@ -87,10 +88,10 @@ Future<void> main() async {
       ..setProperty("-o-filter:", "invert($percent%)")
       ..setProperty("-ms-filter", "invert($percent%)");
     document.body.style.backgroundColor =
-        "#${(0xffffff * (100 - percentDarkMode) / 100 as int).toRadixString(16).padLeft(6, '0')}";
-    codeListener.cancel();
+        "#${(0xffffff * (100 - percent) / 100 as int).toRadixString(16).padLeft(6, '0')}";
+    print(document.body.style.backgroundColor);
   });
-
+return;
   // Poll for updates
   while (true) {
     try {
