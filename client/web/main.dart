@@ -70,11 +70,10 @@ Future<void> main() async {
   // Dark mode
   const percentDarkMode = 100;
   const whitelistedElements = ["", "#alerts", ".color"];
-  const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
+  const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
   final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
   bool darkModeEnabled = false;
-  StreamSubscription codeListener;
-  codeListener = document.onKeyDown.listen((e) {
+  document.onKeyDown.listen((e) {
     keypressBuff
       ..removeAt(0)
       ..add(e.keyCode);
@@ -86,9 +85,9 @@ Future<void> main() async {
       ..setProperty("-moz-filter", "invert($percent%)")
       ..setProperty("-o-filter:", "invert($percent%)")
       ..setProperty("-ms-filter", "invert($percent%)");
+    print((0xffffff * (1 - percentDarkMode / 100) as int).toRadixString(16).padLeft(6, '0'));
     document.body.style.backgroundColor =
-        "#${(0xffffff * (100 - percent) / 100 as int).toRadixString(16).padLeft(6, '0')}";
-    print(document.body.style.backgroundColor);
+        "#${(0xffffff * (1 - percent / 100) as int).toRadixString(16).padLeft(6, '0')}";
   });
 
   // Poll for updates
