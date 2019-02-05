@@ -1,17 +1,10 @@
 import 'dart:html';
+import 'package:client/config.dart' as config;
 import 'api.dart';
 import 'custom_alert.dart';
 import 'input.dart';
 import 'modal.dart';
 import 'status.dart';
-
-const assetsPath = "/assets";
-const disclosureTriangleImg = "$assetsPath/disctri";
-const partImg = "$assetsPath/part.png";
-const plusImg = "$assetsPath/plus.png";
-const deleteImg = "$assetsPath/trashcan.png";
-const loadingAnim = "$assetsPath/loading.png";
-const descriptionDisplayLen = 100;
 
 class PartHtml {
   Session session;
@@ -64,13 +57,13 @@ class PartHtml {
             : (model.description
                     .substring(
                         0,
-                        descriptionDisplayLen.clamp(
+                        config.Part.maxDescriptionLength.clamp(
                             0, model.description.length))
                     .trim() +
-                (model.description.length > descriptionDisplayLen
+                (model.description.length > config.Part.maxDescriptionLength
                     ? "..."
                     : "")),
-      ImageElement(src: plusImg, width: 20, height: 20)
+      ImageElement(src: config.Assets.plus, width: 20, height: 20)
         ..className = "new"
         ..onClick.listen((e) {
           e.stopPropagation();
@@ -79,7 +72,7 @@ class PartHtml {
 
           displayPartMenu(newPart: true);
         }),
-      ImageElement(src: deleteImg, width: 20, height: 20)
+      ImageElement(src: config.Assets.delete, width: 20, height: 20)
         ..className = "delete"
         ..onClick.listen((e) async {
           e.stopPropagation();
@@ -116,8 +109,8 @@ class PartHtml {
     ]);
 
   ImageElement disclosureTriangle() => disclosureTriangleElem = model.children.isEmpty
-      ? (ImageElement(src: partImg)..className = "icon")
-      : (ImageElement(src: "${disclosureTriangleImg}true.png")
+      ? (ImageElement(src: config.Assets.gear)..className = "icon")
+      : (ImageElement(src: config.Assets.disclosureTriangle[true])
         ..onClick.listen((e) {
           e.stopPropagation();
           // this is done to close status dropdowns
@@ -130,7 +123,7 @@ class PartHtml {
   void toggleChildrenDisplayed() {
     childrenContainer.style.display =
         (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-    disclosureTriangleElem.srcset = "$disclosureTriangleImg${!childrenDisplayed}.png";
+    disclosureTriangleElem.srcset = config.Assets.disclosureTriangle[!childrenDisplayed];
   }
 
   void displayPartMenu({bool newPart = false}) {

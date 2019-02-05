@@ -2,11 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:equatable/equatable.dart';
-import 'package:http/browser_client.dart';
+import 'package:client/config.dart' as config;
 
-var a = BrowserClient();
-
-const endpoint = "http://parts.botprovoking.org/api";
 enum UpdateType { delete, create, patch }
 
 abstract class Model extends Equatable {
@@ -97,7 +94,7 @@ class Session {
   Session(this.client);
 
   Future<void> init() async {
-    final resp = await client.get("$endpoint/init");
+    final resp = await client.get("${config.API.endpoint}/init");
 
     if (resp.statusCode == 401) {
       throw StateError("Not signed in");
@@ -127,7 +124,7 @@ class Session {
 
   Future<void> updateFromJson(Map<String, dynamic> updateJson,
       UpdateType updateType, String modelEndpoint) async {
-    final url = "$endpoint/$modelEndpoint/${updateJson["id"] ?? ""}";
+    final url = "${config.API.endpoint}/$modelEndpoint/${updateJson["id"] ?? ""}";
     Response resp;
     switch (updateType) {
       case UpdateType.delete:
@@ -154,7 +151,7 @@ class Session {
 
   Stream<Map<String, dynamic>> pollForUpdates() async* {
     final resp =
-        await client.send(Request("GET", Uri.parse("$endpoint/updates")));
+        await client.send(Request("GET", Uri.parse("${config.API.endpoint}/updates")));
     if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
       throw Exception(await resp.stream.bytesToString());
     }

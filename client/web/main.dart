@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:client/client.dart';
+import 'package:client/config.dart' as config;
 
 Future<void> main() async {
   // Initialize alerts
@@ -12,7 +13,7 @@ Future<void> main() async {
     await session.init();
   } on StateError {
     // Redirect to authentication
-    window.location.pathname = "/google";
+    window.location.pathname = config.API.authEndpoint;
     return;
   } catch (e) {
     // Authentication Failed
@@ -68,9 +69,6 @@ Future<void> main() async {
   });
 
   // Dark mode
-  const percentDarkMode = 100;
-  const whitelistedElements = ["", "#alerts", ".color"];
-  const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
   final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
   bool darkModeEnabled = false;
   document.onKeyDown.listen((e) {
@@ -78,9 +76,9 @@ Future<void> main() async {
       ..removeAt(0)
       ..add(e.keyCode);
     for (int i = 0; i < keypressBuff.length; ++i)
-      if (keypressBuff[i] != code[i]) return;
-    final percent = (darkModeEnabled = !darkModeEnabled) ? percentDarkMode : 0;
-    querySelectorAll("html${whitelistedElements.join(",")}").style
+      if (keypressBuff[i] != config.DarkMode.code[i]) return;
+    final percent = (darkModeEnabled = !darkModeEnabled) ? config.DarkMode.percent : 0;
+    querySelectorAll("html${config.DarkMode.whitelistedElements.join(",")}").style
       ..setProperty("-webkit-filter", "invert($percent%)")
       ..setProperty("-moz-filter", "invert($percent%)")
       ..setProperty("-o-filter:", "invert($percent%)")

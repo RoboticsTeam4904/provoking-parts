@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html';
-import 'custom_alert.dart';
 
 abstract class InputField<T> {
   String name;

@@ -205,7 +205,7 @@ Response makeMockClientUpdateResponse(request, int id,
       if (!requestFields.containsAll(requiredFields))
         return respond(request, 400,
             body:
-                "$id: Request body did not contain the following required fields: ${requestFields.difference(requiredFields)}, ${json}");
+                "$id: Request body did not contain the following required fields: ${requestFields.difference(requiredFields)}, $json");
 
       if (json["id"] != id)
         return respond(request, 400,

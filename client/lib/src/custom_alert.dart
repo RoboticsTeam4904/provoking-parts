@@ -1,8 +1,7 @@
 import 'dart:html';
+import 'package:client/config.dart' as config;
 
 enum Alert { error, warning, success }
-
-const closeWindowImg = "assets/closewindow.png";
 
 class AlertManager {
   Element alertsContainer;
@@ -26,7 +25,7 @@ class CustomAlert {
     elem = DivElement()
       ..className = type.toString().replaceFirst(".", " ")
       ..text = msg
-      ..children.add(ImageElement(src: closeWindowImg)
+      ..children.add(ImageElement(src: config.Assets.closeWindow)
         ..className = "closeWindow"
         ..onClick.listen((_) => elem.remove()));
   }
