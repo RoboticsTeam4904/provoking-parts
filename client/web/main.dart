@@ -61,8 +61,8 @@ Future<void> main() async {
     void closeAllChildren(PartHtml part) => part
       ..toggleChildrenDisplayed()
       ..children.forEach((p) {
-        if (p.children.isEmpty || allPartsDisplayed == p.childrenDisplayed) return;
-        p.toggleChildrenDisplayed();
+        if (p.children.isEmpty) return;
+        if (allPartsDisplayed != p.childrenDisplayed) p.toggleChildrenDisplayed();
         closeAllChildren(p);
       });
 
