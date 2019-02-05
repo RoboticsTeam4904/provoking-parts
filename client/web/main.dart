@@ -72,6 +72,7 @@ Future<void> main() async {
   const whitelistedElements = ["", "#alerts", ".color"];
   const code = <int>[38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
   final keypressBuff = <int>[76, 69, 79, 73, 83, 67, 79, 79, 76, 35];
+  bool darkModeEnabled = false;
   StreamSubscription codeListener;
   codeListener = document.onKeyDown.listen((e) {
     keypressBuff
@@ -79,13 +80,14 @@ Future<void> main() async {
       ..add(e.keyCode);
     for (int i = 0; i < keypressBuff.length; ++i)
       if (keypressBuff[i] != code[i]) return;
+    final percent = (darkModeEnabled = !darkModeEnabled) ? percentDarkMode : 0;
     querySelectorAll("html${whitelistedElements.join(",")}").style
-      ..setProperty("-webkit-filter", "invert($percentDarkMode%)")
-      ..setProperty("-moz-filter", "invert($percentDarkMode%)")
-      ..setProperty("-o-filter:", "invert($percentDarkMode%)")
-      ..setProperty("-ms-filter", "invert($percentDarkMode%)");
+      ..setProperty("-webkit-filter", "invert($percent%)")
+      ..setProperty("-moz-filter", "invert($percent%)")
+      ..setProperty("-o-filter:", "invert($percent%)")
+      ..setProperty("-ms-filter", "invert($percent%)");
     document.body.style.backgroundColor =
-        "#${(100 - percentDarkMode).toRadixString(16).padLeft(6, '0')}";
+        "#${(0xffffff * (100 - percentDarkMode) / 100)).toRadixString(16).padLeft(6, '0')}";
     codeListener.cancel();
   });
 
