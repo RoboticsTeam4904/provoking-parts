@@ -16,6 +16,7 @@ const descriptionDisplayLen = 100;
 class PartHtml {
   Session session;
   DivElement elem, part, childrenContainer;
+  ImageElement disclosureTriangleElem;
   List<PartHtml> children = [];
   PartModel model;
   Modal modal;
@@ -114,7 +115,7 @@ class PartHtml {
           .elem
     ]);
 
-  ImageElement disclosureTriangle() => model.children.isEmpty
+  ImageElement disclosureTriangle() => disclosureTriangleElem = model.children.isEmpty
       ? (ImageElement(src: partImg)..className = "icon")
       : (ImageElement(src: "${disclosureTriangleImg}true.png")
         ..onClick.listen((e) {
@@ -122,14 +123,14 @@ class PartHtml {
           // this is done to close status dropdowns
           document.body.click();
 
-          toggleChildrenDisplayed(e.target as ImageElement);
+          toggleChildrenDisplayed();
         })
         ..className = "icon disclosureTri");
 
-  void toggleChildrenDisplayed(ImageElement tri) {
+  void toggleChildrenDisplayed() {
     childrenContainer.style.display =
         (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-    tri.srcset = "$disclosureTriangleImg${!childrenDisplayed}.png";
+    disclosureTriangleElem.srcset = "$disclosureTriangleImg${!childrenDisplayed}.png";
   }
 
   void displayPartMenu({bool newPart = false}) {

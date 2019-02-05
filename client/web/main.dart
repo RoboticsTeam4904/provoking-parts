@@ -46,7 +46,7 @@ Future<void> main() async {
   htmlParts.addEntries(
       flatten(htmlParts.values).map((p) => MapEntry(p.model.id, p)));
 
-  // Make sorting buttons
+  // Make orginization buttons
   querySelector("#sortNames").onClick.listen(
       (_) => dummyPart.sort((a, b) => a.model.name.compareTo(b.model.name)));
   querySelector("#sortStatuses").onClick.listen((_) => dummyPart.sort((a, b) {
@@ -54,6 +54,20 @@ Future<void> main() async {
           return a.model.name.compareTo(b.model.name);
         return a.model.statusID > b.model.statusID ? -1 : 1;
       }));
+  bool allPartsDisplayed = false;
+  querySelector("#cebi").onClick.listen((_) {
+    allPartsDisplayed = !allPartsDisplayed;
+
+    void closeAllChildren(PartHtml part) => part
+      ..toggleChildrenDisplayed()
+      ..children.forEach((p) {
+        if (p.children.isEmpty || allPartsDisplayed == p.childrenDisplayed) return;
+        p.toggleChildrenDisplayed();
+        closeAllChildren(p);
+      });
+
+    dummyPart.children.forEach(closeAllChildren);
+  });
 
   // Dark mode
   const percentDarkMode = 100;
@@ -66,12 +80,13 @@ Future<void> main() async {
       ..add(e.keyCode);
     for (int i = 0; i < keypressBuff.length; ++i)
       if (keypressBuff[i] != code[i]) return;
-    querySelector("html").style
+    querySelectorAll("html").style
       ..setProperty("-webkit-filter", "invert($percentDarkMode%)")
       ..setProperty("-moz-filter", "invert($percentDarkMode%)")
       ..setProperty("-o-filter:", "invert($percentDarkMode%)")
       ..setProperty("-ms-filter", "invert($percentDarkMode%)");
-    document.body.style.backgroundColor = "#${(100-percentDarkMode).toRadixString(16).padLeft(6, '0')}";
+    document.body.style.backgroundColor =
+        "#${(100 - percentDarkMode).toRadixString(16).padLeft(6, '0')}";
     codeListener.cancel();
   });
 
