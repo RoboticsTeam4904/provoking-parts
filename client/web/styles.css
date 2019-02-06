@@ -143,7 +143,8 @@ img {
   background-color: #f0f0f0;
   padding: 3px;
   margin: 12px 6px 6px 4px;
-  float:left;
+  float: left;
+  user-select: none;
 }
 
 #partsList {
