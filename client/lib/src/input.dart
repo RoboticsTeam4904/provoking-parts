@@ -101,17 +101,16 @@ class EditMenu {
             ButtonElement()
               ..className = "save"
               ..text = "Save"
-              ..onClick.listen((_) async {
-                final json = assembleJson();
-                if (errors.children.isNotEmpty) return;
-                await onComplete(json);
-              }),
+              ..onClick.listen((_) => save()),
             ButtonElement()
               ..className = "cancel"
               ..text = "Cancel"
               ..onClick.listen((_) => onCancel())
           ])
       ]);
+    document.onKeyPress.listen((press) {
+      if (press.key == "Enter") save();
+    });
   }
 
   Map<String, dynamic> assembleJson() {
@@ -126,5 +125,11 @@ class EditMenu {
       json[field.name] = field.value;
     }
     return json;
+  }
+
+  void save() {
+    final json = assembleJson();
+    if (errors.children.isNotEmpty) return;
+    onComplete(json);
   }
 }
