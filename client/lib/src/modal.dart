@@ -7,7 +7,7 @@ class Modal {
   Modal(this.modalContainer, Element screenCover) {
     screenCover.onClick.listen((_) => close());
     document.onKeyPress.listen((press) {
-      if (press.key == "Escape" || press.key == "Enter") close();
+      if (press.key == "Escape") close();
     });
   }
 

@@ -108,9 +108,6 @@ class EditMenu {
               ..onClick.listen((_) => onCancel())
           ])
       ]);
-    document.onKeyPress.listen((press) {
-      if (press.key == "Enter") save();
-    });
   }
 
   Map<String, dynamic> assembleJson() {
