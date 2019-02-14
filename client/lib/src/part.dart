@@ -57,8 +57,8 @@ class PartHtml {
             : (model.description
                     .substring(
                         0,
-                        config.Part.maxDescriptionLength.clamp(
-                            0, model.description.length))
+                        config.Part.maxDescriptionLength
+                            .clamp(0, model.description.length))
                     .trim() +
                 (model.description.length > config.Part.maxDescriptionLength
                     ? "..."
@@ -108,22 +108,24 @@ class PartHtml {
           .elem
     ]);
 
-  ImageElement disclosureTriangle() => disclosureTriangleElem = model.children.isEmpty
-      ? (ImageElement(src: config.Assets.gear)..className = "icon")
-      : (ImageElement(src: config.Assets.disclosureTriangle[true])
-        ..onClick.listen((e) {
-          e.stopPropagation();
-          // this is done to close status dropdowns
-          document.body.click();
+  ImageElement disclosureTriangle() =>
+      disclosureTriangleElem = model.children.isEmpty
+          ? (ImageElement(src: config.Assets.gear)..className = "icon")
+          : (ImageElement(src: config.Assets.disclosureTriangle[true])
+            ..onClick.listen((e) {
+              e.stopPropagation();
+              // this is done to close status dropdowns
+              document.body.click();
 
-          toggleChildrenDisplayed();
-        })
-        ..className = "icon disclosureTri");
+              toggleChildrenDisplayed();
+            })
+            ..className = "icon disclosureTri");
 
   void toggleChildrenDisplayed() {
     childrenContainer.style.display =
         (childrenDisplayed = !childrenDisplayed) ? "none" : "";
-    disclosureTriangleElem.srcset = config.Assets.disclosureTriangle[!childrenDisplayed];
+    disclosureTriangleElem.srcset =
+        config.Assets.disclosureTriangle[!childrenDisplayed];
   }
 
   void displayPartMenu({bool newPart = false}) {
@@ -149,9 +151,9 @@ class PartHtml {
               newPart ? null : StatusHtml.fromID(status.value, session))
     ], (json) async {
       try {
-      await session.updateFromJson(
-          json, newPart ? UpdateType.create : UpdateType.patch, "parts");
-      } catch (e)  {
+        await session.updateFromJson(
+            json, newPart ? UpdateType.create : UpdateType.patch, "parts");
+      } catch (e) {
         alerts.show(CustomAlert(Alert.error, e.toString()));
       }
       modal.close();
@@ -165,5 +167,33 @@ class PartHtml {
     children.sort(compare);
     childrenContainer.children = children.map((p) => p.elem).toList();
     children.forEach((p) => p.sort(compare));
+  }
+
+  List<PartHtml> searchChildrenByString(String query,
+      {String Function(PartHtml part) getProperty}) {
+    int levenshteinDistance(String a, String b) {
+      if (a.isEmpty) return b.length;
+      if (b.isEmpty) return a.length;
+
+      var min = levenshteinDistance(
+              a.substring(0, a.length - 1), b.substring(0, b.length - 1)) +
+          (a.codeUnits.last == b.codeUnits.last ? 0 : 1);
+      var lev = levenshteinDistance(a.substring(0, a.length - 1), b) + 1;
+      if (lev < min) min = lev;
+      lev = levenshteinDistance(b.substring(0, b.length - 1), a) + 1;
+      if (lev < min) min = lev;
+      return min;
+    }
+
+    getProperty ??= (part) => part.model.name;
+    final levCache = <int, int>{};
+    return children.toList()
+      ..sort((a, b) =>
+          levCache
+              .putIfAbsent(
+                  a.model.id, () => levenshteinDistance(getProperty(a), query))
+              .compareTo(levCache.putIfAbsent(b.model.id,
+                  () => levenshteinDistance(getProperty(b), query))) *
+          -1);
   }
 }
