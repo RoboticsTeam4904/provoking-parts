@@ -73,6 +73,34 @@ class IntInput extends InputField<int> {
   }
 }
 
+class SearchInput<T> extends InputField<String> {
+  List<String> stringySearchOptions;
+  final List Function(List<T> options, String query) search;
+  InputElement searchBar;
+  DivElement searchResultsContainer;
+
+  String get value => searchBar.value.toString();
+
+  SearchInput(String name, List<T> searchOptions, this.search)
+      : super(
+            name,
+            DivElement()
+              ..children.addAll(
+                  [InputElement()..onChange.listen((_) => _), DivElement()])) {
+    searchBar = elem.querySelector("input");
+    searchResultsContainer = elem.querySelector("div");
+    stringySearchOptions = searchOptions.map((e) => e.toString());
+  }
+
+  void displayResults(List results) {}
+
+  @override
+  void validateInput() {
+    if (!stringySearchOptions.contains(searchBar.value))
+      throw FormatException("\"${searchBar.value}\" not found as an option.");
+  }
+}
+
 class EditMenu {
   DivElement elem;
   DivElement errors;
