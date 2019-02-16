@@ -88,6 +88,47 @@ class PartHtml {
             alerts.show(CustomAlert(Alert.error, ex.toString()));
           }
         }),
+      ImageElement(src: config.Assets.copy, width: 20, height: 20)
+        ..className = "copy"
+        ..onClick.listen((e) {
+          e.stopPropagation();
+          // this is done to close status dropdowns
+          document.body.click();
+
+          modal.show(EditMenu("Move ${model.name}", [
+            SearchInput(
+                "destination",
+                (query) => model.session.parts.values
+                    .firstWhere((p) => p.name == query),
+                model.session.parts.values,
+                (_, query) => session
+                    .searchPartsByString(query)
+                    .take(config.Part.maxNumSearchResults)
+                    .where((p) => p != model)
+                    .map((p) => p.name),
+                config.Part.maxNumSearchResults),
+            CheckboxInput("copy", "Copy?"),
+          ], (json) async {
+            try {
+              final PartModel newParent = json["destination"];
+              if (json["copy"])
+                await session.updateFromJson(
+                    {"id": model.id, "parentId": newParent.id},
+                    UpdateType.create,
+                    config.API.partsEndpoint);
+              else
+                await session.updateFromJson(
+                    {"id": model.id, "parentId": newParent.id},
+                    UpdateType.patch,
+                    config.API.partsEndpoint);
+            } catch (e) {
+              alerts
+                ..show(CustomAlert(Alert.warning,
+                    "Failed to ${json["copy"] ? "copy" : "move"} part ${model.name}."))
+                ..show(CustomAlert(Alert.error, e.toString()));
+            }
+          }).elem);
+        }),
       (status = StatusDropdown("status",
               session.statuses.values.map((s) => StatusHtml(s)).toList(),
               selectedStatus: StatusHtml.fromID(model.statusID, session),
@@ -167,33 +208,5 @@ class PartHtml {
     children.sort(compare);
     childrenContainer.children = children.map((p) => p.elem).toList();
     children.forEach((p) => p.sort(compare));
-  }
-
-  List<PartHtml> searchChildrenByString(String query,
-      {String Function(PartHtml part) getProperty}) {
-    int levenshteinDistance(String a, String b) {
-      if (a.isEmpty) return b.length;
-      if (b.isEmpty) return a.length;
-
-      var min = levenshteinDistance(
-              a.substring(0, a.length - 1), b.substring(0, b.length - 1)) +
-          (a.codeUnits.last == b.codeUnits.last ? 0 : 1);
-      var lev = levenshteinDistance(a.substring(0, a.length - 1), b) + 1;
-      if (lev < min) min = lev;
-      lev = levenshteinDistance(b.substring(0, b.length - 1), a) + 1;
-      if (lev < min) min = lev;
-      return min;
-    }
-
-    getProperty ??= (part) => part.model.name;
-    final levCache = <int, int>{};
-    return children.toList()
-      ..sort((a, b) =>
-          levCache
-              .putIfAbsent(
-                  a.model.id, () => levenshteinDistance(getProperty(a), query))
-              .compareTo(levCache.putIfAbsent(b.model.id,
-                  () => levenshteinDistance(getProperty(b), query))) *
-          -1);
   }
 }

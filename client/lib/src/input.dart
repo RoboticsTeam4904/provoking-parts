@@ -32,7 +32,7 @@ class DefaultInput extends InputField<String> {
                   ..value = defaultValue
                   ..name = name
               ])) {
-    input = elem.lastChild;
+    input = elem.querySelector("input");
   }
 
   @override
@@ -40,6 +40,33 @@ class DefaultInput extends InputField<String> {
     if (!overrideDefaultValidation && (value == null || value.isEmpty))
       throw FormatException("You must input something for $name.");
     if (customInputValidation != null) customInputValidation(this);
+  }
+}
+
+class CheckboxInput extends InputField<bool> {
+  InputElement input;
+
+  @override
+  bool get value => input.checked;
+
+  CheckboxInput(String name, String displayName,
+      {String defaultValue = ""})
+      : super(
+            name,
+            DivElement()
+              ..children.addAll([
+                SpanElement()..text = displayName,
+                InputElement(type: "checkbox")
+                  ..value = defaultValue
+                  ..name = name
+              ])) {
+    input = elem.querySelector("input");
+  }
+
+  @override
+  void validateInput() {
+    if (value == null)
+      throw const FormatException("Something went horribly awry");
   }
 }
 
@@ -62,7 +89,7 @@ class IntInput extends InputField<int> {
                   ..value = defaultValue.toString()
                   ..name = name
               ])) {
-    input = elem.lastChild;
+    input = elem.querySelector("input");
   }
 
   @override
@@ -73,31 +100,51 @@ class IntInput extends InputField<int> {
   }
 }
 
-class SearchInput<T> extends InputField<String> {
-  List<String> stringySearchOptions;
-  final List Function(List<T> options, String query) search;
+class SearchInput<T> extends InputField<T> {
+  final Iterable<T> searchOptions;
+  final Iterable<String> Function(Iterable<T> options, String query) search;
+  final T Function(String query) getValueFromQuery;
+  final int maxDisplayedSearchResults;
   InputElement searchBar;
   DivElement searchResultsContainer;
 
-  String get value => searchBar.value.toString();
+  @override
+  T get value => getValueFromQuery(searchBar.value);
 
-  SearchInput(String name, List<T> searchOptions, this.search)
-      : super(
-            name,
-            DivElement()
-              ..children.addAll(
-                  [InputElement()..onChange.listen((_) => _), DivElement()])) {
-    searchBar = elem.querySelector("input");
+  SearchInput(String name, this.getValueFromQuery, this.searchOptions,
+      this.search, this.maxDisplayedSearchResults)
+      : super(name,
+            DivElement()..children.addAll([InputElement(), DivElement()])) {
+    searchBar = elem.querySelector("input")
+      ..onChange.listen((_) {
+        if (searchBar.value.trim() == "" || searchBar.value == null)
+          searchResultsContainer.children.clear();
+        else
+          displayResults(search(searchOptions, searchBar.value));
+      });
     searchResultsContainer = elem.querySelector("div");
-    stringySearchOptions = searchOptions.map((e) => e.toString());
   }
 
-  void displayResults(List results) {}
+  void displayResults(List<String> results) {
+    searchResultsContainer.children
+      ..clear()
+      ..addAll(List.generate(
+          maxDisplayedSearchResults.clamp(0, results.length),
+          (i) => DivElement()
+            ..text = results[i]
+            ..onClick.listen((_) {
+              searchResultsContainer.children.clear();
+              searchBar
+                ..value = results[i]
+                ..text = results[i];
+            })));
+  }
 
   @override
   void validateInput() {
-    if (!stringySearchOptions.contains(searchBar.value))
+    if (!searchOptions.contains(value))
       throw FormatException("\"${searchBar.value}\" not found as an option.");
+    if (value == null) throw Exception("ABORT");
   }
 }
 
@@ -106,8 +153,8 @@ class EditMenu {
   DivElement errors;
   List<InputField> fields;
   Map<String, dynamic> defaultJson;
-  Future<void> Function(Map<String, dynamic> json) onComplete;
-  void Function() onCancel;
+  Function(Map<String, dynamic> json) onComplete;
+  Function() onCancel;
 
   EditMenu(String title, this.fields, this.onComplete,
       {Function() onCancel, Map<String, dynamic> defaultJson})

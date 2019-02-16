@@ -1,22 +1,27 @@
 abstract class API {
   static const endpoint = "http://parts.botprovoking.org/api";
   static const authEndpoint = "/google";
+  static const initEndpoint = "init";
+  static const partsEndpoint = "parts";
+  static const statusesEndpoint = "statuses";
 }
 
 abstract class Part {
   static const maxDescriptionLength = 100;
+  static const maxNumSearchResults = 5;
 }
 
 abstract class Assets {
-  static const assetsPath = "assets";
-  static const gear = "$assetsPath/part.png";
-  static const plus = "$assetsPath/plus.png";
-  static const delete = "$assetsPath/trashcan.png";
-  static const loading = "$assetsPath/loading.png";
-  static const closeWindow = "$assetsPath/closewindow.png";
+  static const path = "assets";
+  static const gear = "$path/part.png";
+  static const plus = "$path/plus.png";
+  static const delete = "$path/trashcan.png";
+  static const copy = "$path/copy.png";
+  static const loading = "$path/loading.gif";
+  static const closeWindow = "$path/closewindow.png";
   static const disclosureTriangle = {
-    true: "$assetsPath/disctritrue.png",
-    false: "$assetsPath/disctrifalse.png"
+    true: "$path/disctritrue.png",
+    false: "$path/disctrifalse.png"
   };
 }
 

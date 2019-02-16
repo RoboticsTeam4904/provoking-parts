@@ -29,7 +29,7 @@ class PartModel extends Model {
   StatusModel get status => session.statuses[statusID];
 
   @override
-  String get endpoint => "parts";
+  String get endpoint => config.API.partsEndpoint;
 
   PartModel(this.name, this.description, this.statusID, this.id, this.quantity,
       this.parentID, this.session)
@@ -68,7 +68,7 @@ class StatusModel extends Model {
   int color;
 
   @override
-  String get endpoint => "statuses";
+  String get endpoint => config.API.statusesEndpoint;
 
   StatusModel(this.label, this.id, this.color, this.session)
       : super([label, id, color, session]);
@@ -94,7 +94,7 @@ class Session {
   Session(this.client);
 
   Future<void> init() async {
-    final resp = await client.get("${config.API.endpoint}/init");
+    final resp = await client.get("${config.API.endpoint}/${config.API.initEndpoint}");
 
     if (resp.statusCode == 401) {
       throw StateError("Not signed in");
@@ -210,4 +210,32 @@ class Session {
   }
 
   void removeStatus(StatusModel status) => statuses.remove(status.id);
+
+  List<PartModel> searchPartsByString(String query,
+      {String Function(PartModel part) getProperty}) {
+    int levenshteinDistance(String a, String b) {
+      if (a.isEmpty) return b.length;
+      if (b.isEmpty) return a.length;
+
+      var min = levenshteinDistance(
+              a.substring(0, a.length - 1), b.substring(0, b.length - 1)) +
+          (a.codeUnits.last == b.codeUnits.last ? 0 : 1);
+      var lev = levenshteinDistance(a.substring(0, a.length - 1), b) + 1;
+      if (lev < min) min = lev;
+      lev = levenshteinDistance(b.substring(0, b.length - 1), a) + 1;
+      if (lev < min) min = lev;
+      return min;
+    }
+    
+    getProperty ??= (part) => part.name;
+    final levCache = <int, int>{};
+    return parts.values.toList()
+      ..sort((a, b) =>
+          levCache
+              .putIfAbsent(
+                  a.id, () => levenshteinDistance(getProperty(a), query))
+              .compareTo(levCache.putIfAbsent(b.id,
+                  () => levenshteinDistance(getProperty(b), query))) *
+          -1);
+  }
 }
