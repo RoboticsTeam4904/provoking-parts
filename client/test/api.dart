@@ -45,6 +45,7 @@ final updatesJson = [
     "new": {
       "id": 1,
       "name": "Drivebase",
+      "description": "cool part thing",
       "quantity": 1,
       "statusID": 0,
       "parentID": 0
@@ -66,10 +67,10 @@ final client = MockClient((request) async {
   if (request.url.path == "/api/updates") {
     final body = StringBuffer()
       ..writeln()
-      ..writeln(jsonEncode(updatesJson[0]))
-      ..writeln()
-      ..writeln()
       ..writeln(jsonEncode(updatesJson[1]))
+      ..writeln()
+      ..writeln()
+      ..writeln(jsonEncode(updatesJson[0]))
       ..writeln();
 
     return respond(request, 200, body: body.toString());
@@ -146,18 +147,21 @@ void main() {
         .forEach((entry) => expect(entry.key, equals(entry.value.id)));
 
     session.parts.values.where((p) => p.parentID != null).forEach(
-        (part) => expect(part, isIn(session.parts[part.parentID].children)));
+        (part) {
+          expect(part.id, isIn(session.parts[part.parentID].children));
+        });
   });
 
   test("correctly receives and applies updates", () async {
     await session.pollForUpdates().take(updatesJson.length).last;
 
-    expect(session.parts.values,
-        contains(PartModel.fromJson(updatesJson[0]["new"], session)));
+    expect(session.parts[(updatesJson[0]["new"] as Map)["id"]].toJson(),
+        equals(updatesJson[0]["new"]));
 
     expect(session.statuses.values,
         contains(StatusModel.fromJson(updatesJson[1]["new"], session)));
-  });
+      });
+
 
   // test("correctly formats and sends updates", () async {
   //   await session.update(PartModel.fromJson(sessionJson["parts"][0], session),
